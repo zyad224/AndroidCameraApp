@@ -8,8 +8,19 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.arch.persistence.room.Room;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import java.util.List;
+import com.example.zeyad.cameraapplication.database.*;
+
 
 public class MainActivity extends AppCompatActivity {
+
+
+    private static AppDatabase db;
+    private static boolean databaseLoaded=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +37,21 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        if (db==null)
+            db = Room.databaseBuilder(getApplicationContext(),
+                    AppDatabase.class, "images_database")
+                    .addMigrations(AppDatabase.MIGRATION_1_2)
+                    .build();
+
+
+
+        // these functions will be used with the GPS
+        // to insert and retrieves images from DB
+        /*
+        new InsertIntoDatabaseTask().execute();
+        // search the database
+        new SearchDatabaseTask().execute();*/
     }
 
     @Override
@@ -49,4 +75,49 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
+    private class InsertIntoDatabaseTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            Location location = new Location(53.3829700, -1.4659000, 20);
+            db.imageDao().insertLocation(location);
+           // Image image= new Image(getApplicationContext(), R.drawable.joe1, "joe1", "this is Joe 1", location.getId());
+           // db.imageDao().insertImage(image);
+
+
+            return null;
+        }
+    }
+
+    private class SearchDatabaseTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            Log.i("MainActivity", "finding Joe1");
+            List<Image> imageList = db.imageDao().findImageByTitle("joe1");
+            for (Image imageX : imageList) {
+                Log.i("MainActivity", "title: " + imageX.getTitle() + "  description: " + imageX.getDescription());
+            }
+
+
+            Log.i("MainActivity", "finding by area");
+            imageList = db.imageDao().findImagesByArea(53.38297, 1.46590, 100);
+            for (Image imageX : imageList) {
+                Log.i("MainActivity", "title: " + imageX.getTitle() + "  description: " + imageX.getDescription());
+            }
+            return null;
+        }
+    }
+
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+
+    }
+
+
+
 }
