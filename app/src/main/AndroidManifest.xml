@@ -43,7 +43,6 @@
         <service android:name=".GPS_Service" />
 
         <activity android:name=".ShowImageActivity" />
-        <activity android:name=".BrowseImageActivity"></activity>
     </application>
 
 </manifest>

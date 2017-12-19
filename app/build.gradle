@@ -43,4 +43,6 @@ dependencies {
     compile "com.google.android.gms:play-services-maps:11.+"
     compile "com.google.android.gms:play-services-location:11.+"
     compile 'com.github.jkwiecien:EasyImage:2.0.3'
+    compile 'com.android.support.constraint:constraint-layout:1.+'
+    compile 'com.android.support:design:26.+'
 }
