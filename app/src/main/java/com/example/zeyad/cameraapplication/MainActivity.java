@@ -1,5 +1,6 @@
 package com.example.zeyad.cameraapplication;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -16,6 +17,8 @@ import android.util.Log;
 import java.util.List;
 import com.example.zeyad.cameraapplication.database.*;
 
+import pl.aprilapps.easyphotopicker.EasyImage;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,12 +26,15 @@ public class MainActivity extends AppCompatActivity {
     private static AppDatabase db;
     private static boolean databaseLoaded=false;
 
+    private Activity activity;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        activity= this;
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         FloatingActionButton fab2 = (FloatingActionButton) findViewById(R.id.fab2);
@@ -62,6 +68,15 @@ public class MainActivity extends AppCompatActivity {
         new InsertIntoDatabaseTask().execute();
         // search the database
         new SearchDatabaseTask().execute();*/
+
+
+        FloatingActionButton fabCamera = (FloatingActionButton) findViewById(R.id.fab_camera);
+        fabCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EasyImage.openCamera(getActivity(), 0);
+            }
+        });
     }
 
     @Override
@@ -128,6 +143,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
+    public Activity getActivity(){return activity;}
 
 }
