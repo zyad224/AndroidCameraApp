@@ -13,7 +13,8 @@ public class ImageElement {
     private String title;
     private String description;
     private String date;
-
+    private double longitude;
+    private double latitude;
 
     //drawable
     public ImageElement(int image) {
@@ -35,10 +36,14 @@ public class ImageElement {
     public String getDate(){
         return date;
     }
+    public double getLongitude(){return longitude;}
+    public double getLatitude() {return  latitude;}
 
     public void setTitle(String title){
         this.title=title;
     }
+    public void setLongitude(double longitude){this.longitude=longitude;}
+    public void setLatitude(double latitude){this.latitude=latitude;}
 
     public void setDescription(String description){
         this.description=description;

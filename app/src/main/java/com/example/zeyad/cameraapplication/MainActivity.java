@@ -59,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver broadcastReceiver; // getting tha data
     private double longitude;
     private double latitude;
+    static boolean flag=true;
+    private ImageElement element;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +94,9 @@ public class MainActivity extends AppCompatActivity {
         fabGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 EasyImage.openGallery(getActivity(), 0);
+                flag=false;
             }
         });
 
@@ -100,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 EasyImage.openCamera(getActivity(), 0);
+                flag=true;
                 Intent i = new Intent(getApplicationContext(), GPS_Service.class);
                 startService(i);
 
@@ -246,15 +251,15 @@ public class MainActivity extends AppCompatActivity {
     private List<ImageElement> getImageElements(List<File> returnedPhotos) {
         List<ImageElement> imageElementList= new ArrayList<>();
         for (File file: returnedPhotos){
+
             ImageElement element= new ImageElement(file);
+            if(flag){
+                element.setLatitude(latitude);
+                element.setLongitude(longitude);
+            }
             imageElementList.add(element);
         }
-        Context context = getApplicationContext();
-        CharSequence text = latitude + " "+ longitude;
-        int duration = Toast.LENGTH_SHORT;
 
-        Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
         return imageElementList;
     }
 

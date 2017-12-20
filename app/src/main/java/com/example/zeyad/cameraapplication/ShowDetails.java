@@ -12,6 +12,13 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -21,9 +28,12 @@ public class ShowDetails extends AppCompatActivity {
     private EditText title;
     private EditText description;
     private TextView date;
+    private TextView latitude;
+    private TextView longitude;
     private ImageElement element;
     private ImageView imageView;
     private  String reportDate;
+    private static GoogleMap mMap;
 
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -31,6 +41,9 @@ public class ShowDetails extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_details);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map2);
+        mapFragment.getMapAsync(this::onMapReady);
 
         SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 
@@ -43,7 +56,8 @@ public class ShowDetails extends AppCompatActivity {
         title= (EditText) findViewById(R.id.title);
         description= (EditText) findViewById(R.id.details);
         date = (TextView) findViewById(R.id.date);
-
+        latitude =(TextView) findViewById(R.id.latitude);
+        longitude = (TextView) findViewById(R.id.longitude);
 
         Bundle b = getIntent().getExtras();
         int position=-1;
@@ -67,6 +81,9 @@ public class ShowDetails extends AppCompatActivity {
                 title.setText(element.getTitle());
                 description.setText(element.getDescription());
                 date.setText(element.getDate());
+
+                latitude.setText(String.valueOf(element.getLatitude()));
+                longitude.setText(String.valueOf(element.getLongitude()));
             }
 
         }
@@ -87,6 +104,15 @@ public class ShowDetails extends AppCompatActivity {
         });
     }
 
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+
+        // Add a marker in Sydney and move the camera
+        LatLng sydney = new LatLng(element.getLatitude(), element.getLongitude());
+        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+    }
 
     private void initilaizeFields()
     {
