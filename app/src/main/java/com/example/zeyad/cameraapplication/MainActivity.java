@@ -3,9 +3,11 @@ package com.example.zeyad.cameraapplication;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
@@ -24,11 +26,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.arch.persistence.room.Room;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import com.example.zeyad.cameraapplication.database.*;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import pl.aprilapps.easyphotopicker.DefaultCallback;
 import pl.aprilapps.easyphotopicker.EasyImage;
@@ -50,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap bitmap;
     private ImageView imageView;
 
+    private BroadcastReceiver broadcastReceiver; // getting tha data
+    private double longitude;
+    private double latitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +100,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 EasyImage.openCamera(getActivity(), 0);
+                Intent i = new Intent(getApplicationContext(), GPS_Service.class);
+                startService(i);
+
             }
         });
         fab2.setOnClickListener(new View.OnClickListener() {
@@ -116,7 +128,6 @@ public class MainActivity extends AppCompatActivity {
         // search the database
         new SearchDatabaseTask().execute();*/
     }
-
 
     private void initEasyImage() {
         EasyImage.configuration(this)
@@ -238,6 +249,12 @@ public class MainActivity extends AppCompatActivity {
             ImageElement element= new ImageElement(file);
             imageElementList.add(element);
         }
+        Context context = getApplicationContext();
+        CharSequence text = latitude + " "+ longitude;
+        int duration = Toast.LENGTH_SHORT;
+
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
         return imageElementList;
     }
 
@@ -272,11 +289,11 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            Location location = new Location(53.3829700, -1.4659000, 20);
+            /////////////////////
+            Location location = new Location(latitude, longitude, 20);
             db.imageDao().insertLocation(location);
             // Image image= new Image(getApplicationContext(), R.drawable.joe1, "joe1", "this is Joe 1", location.getId());
             // db.imageDao().insertImage(image);
-
 
             return null;
         }
@@ -302,13 +319,30 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    ////////////////////////////////////////////
 
     @Override
     protected void onResume(){
         super.onResume();
+        if(broadcastReceiver == null){
+            broadcastReceiver = new BroadcastReceiver(){
+
+                @Override
+                public void onReceive(Context context, Intent intent) {
+
+                    longitude =(double)intent.getExtras().get("Longitude");
+                    latitude = (double)intent.getExtras().get("Latitude");
+                }
+            };
+        }
+        registerReceiver(broadcastReceiver, new IntentFilter("location_update"));
 
     }
-
-
+    protected void onDestroy(){
+        super.onDestroy();
+        if(broadcastReceiver !=null){
+            unregisterReceiver(broadcastReceiver);
+        }
+    }
 
 }
