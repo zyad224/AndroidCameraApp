@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.arch.persistence.room.Room;
+import android.widget.ImageView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -44,6 +46,9 @@ public class MainActivity extends AppCompatActivity {
     private Activity activity;
     private static AppDatabase db;
     private static boolean databaseLoaded=false;
+    //////////////////////////////
+    private Bitmap bitmap;
+    private ImageView imageView;
 
 
     @Override
