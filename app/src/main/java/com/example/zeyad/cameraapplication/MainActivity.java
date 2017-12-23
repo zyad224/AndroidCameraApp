@@ -5,14 +5,19 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -29,7 +34,13 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import com.example.zeyad.cameraapplication.database.*;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -62,6 +73,9 @@ public class MainActivity extends AppCompatActivity {
     static boolean flag=true;
     private ImageElement element;
 
+    /////----------------------
+    private String imagePath;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +90,10 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
         mAdapter= new MyAdapter(myPictureList);
         mRecyclerView.setAdapter(mAdapter);
+
+        ////////////
+
+        //loadImageFromStorage("imageDir");
 
         if (myPictureList==null || myPictureList.size()==0) {
             initData();
@@ -133,6 +151,16 @@ public class MainActivity extends AppCompatActivity {
         // search the database
         new SearchDatabaseTask().execute();*/
     }
+
+    ///------///// Unique name for Images
+
+    private String getPictureName(){
+        // provide unique name for us
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        String timeStamp = sdf.format(new Date());
+        return "MyImages"+timeStamp+".jpg";
+    }
+    ///----///////
 
     private void initEasyImage() {
         EasyImage.configuration(this)
@@ -253,11 +281,17 @@ public class MainActivity extends AppCompatActivity {
         for (File file: returnedPhotos){
 
             ImageElement element= new ImageElement(file);
+            // take the image
+            bitmap = BitmapFactory.decodeFile(element.file.getAbsolutePath());
             if(flag){
                 element.setLatitude(latitude);
                 element.setLongitude(longitude);
             }
             imageElementList.add(element);
+            // and call the save method with bitmap image
+            // in database you said that we need the path of image
+            // here giving the path of the image
+            imagePath=saveToInternalStorage(bitmap);
         }
 
         return imageElementList;
@@ -294,11 +328,14 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            /////////////////////
+            ///////////////////// GPS
             Location location = new Location(latitude, longitude, 20);
             db.imageDao().insertLocation(location);
+            ///////////------- Image
+            //Image image = new Image(imagePath,"","",location.getId());
+
             // Image image= new Image(getApplicationContext(), R.drawable.joe1, "joe1", "this is Joe 1", location.getId());
-            // db.imageDao().insertImage(image);
+            //db.imageDao().insertImage(image);
 
             return null;
         }
@@ -324,7 +361,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    ////////////////////////////////////////////
+    //////////////////////////////////////////// GPS
 
     @Override
     protected void onResume(){
@@ -349,5 +386,64 @@ public class MainActivity extends AppCompatActivity {
             unregisterReceiver(broadcastReceiver);
         }
     }
+   //////////////////----------------------------- Saving Image
+    private String saveToInternalStorage(Bitmap bitmapImage){
+        ContextWrapper wrapper = new ContextWrapper(getApplicationContext());
+        // path to /data/data/yourapp/app_data/imageDir
+        File directory = wrapper.getDir("imageDir", Context.MODE_PRIVATE);
+        String picName=getPictureName();
+        // Create imageDir
+        File mypath=new File(directory,picName);
 
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(mypath);
+            // Use the compress method on the BitMap object to write image to the OutputStream
+            bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            fos.flush();
+            /*Context context = getApplicationContext();
+            CharSequence text = "Hello toast!"+bitmapImage;
+            int duration = Toast.LENGTH_SHORT;
+
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();*/
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        Context context = getApplicationContext();
+        CharSequence text = directory.getAbsolutePath();
+        int duration = Toast.LENGTH_SHORT;
+
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
+
+        // we need to convert uri when we want back it 
+        return directory.getAbsolutePath();
+
+    }
+
+
+    // I added name because we also need a unique name
+    private void loadImageFromStorage(String path,String name)
+    {
+
+        try {
+            File f=new File(path, name);
+            Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
+            ImageView img=(ImageView)findViewById(R.id.image_item);
+            img.setImageBitmap(b);
+        }
+        catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+
+
+    }
 }
