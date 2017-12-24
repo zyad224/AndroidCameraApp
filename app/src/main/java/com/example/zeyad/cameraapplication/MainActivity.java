@@ -146,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
                     .build();
 
 
+          new AllImageTask().execute();
 
         // these functions will be used with the GPS
         // to insert and retrieves images from DB
@@ -336,7 +337,30 @@ public class MainActivity extends AppCompatActivity {
     public static AppDatabase getDB(){return db;}
 
 
+    private class AllImageTask extends AsyncTask<Void, Void, Void>{
+        @Override
+        protected Void doInBackground(Void... voids) {
 
+            //This Part will take the images from db and write in main page
+            List<Image> imageList = db.imageDao().loadImages();
+            for (Image imageX : imageList) {
+
+
+                Log.i("MainActivity", "imgpath: " + imageX.getImagepath());
+
+               /* try {
+                    File file=new File(imageX.getImagepath());
+                    Bitmap b = BitmapFactory.decodeStream(new FileInputStream(file));
+                    myPictureList.add(new ImageElement(file));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }*/
+                //ImageElement element= new ImageElement(file)
+            }
+
+            return null;
+        }
+    }
 
     //////////////////////////////////////////// GPS
 
