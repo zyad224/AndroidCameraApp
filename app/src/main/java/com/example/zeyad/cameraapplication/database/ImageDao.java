@@ -29,6 +29,9 @@ public interface ImageDao {
     @Query("SELECT * FROM Image WHERE title=:title")
     public List<Image> findImageByTitle (String title);
 
+    //// for all pictures
+    @Query("SELECT * FROM Image")
+    public List<Image> loadImages();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertImage(Image image);

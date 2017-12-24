@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
     private static boolean databaseLoaded=false;
     //////////////////////////////
     private Bitmap bitmap;
+    private String picName;
     private ImageView imageView;
 
     private BroadcastReceiver broadcastReceiver; // getting tha data
@@ -94,6 +95,8 @@ public class MainActivity extends AppCompatActivity {
         ////////////
 
         //loadImageFromStorage("imageDir");
+
+        new AllImageTask().execute();
 
         if (myPictureList==null || myPictureList.size()==0) {
             initData();
@@ -188,6 +191,9 @@ public class MainActivity extends AppCompatActivity {
         myPictureList.add(new ImageElement(R.drawable.joe3));
     }
 
+    //////////////////
+    /*
+*/
     private void checkPermissions(final Context context) {
         int currentAPIVersion = Build.VERSION.SDK_INT;
         if (currentAPIVersion >= android.os.Build.VERSION_CODES.M) {
@@ -288,6 +294,7 @@ public class MainActivity extends AppCompatActivity {
                 element.setLongitude(longitude);
             }
             element.setImagePath(saveToInternalStorage(bitmap));
+
             imageElementList.add(element);
             // and call the save method with bitmap image
             // in database you said that we need the path of image
@@ -296,6 +303,29 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return imageElementList;
+    }
+
+    ///////// Taking Images from Database -----------------
+    private class AllImageTask extends AsyncTask<Void, Void, Void>{
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            //This Part will take the images from db and write in main page
+           List<Image> imageList = db.imageDao().loadImages();
+           for (Image imageX : imageList) {
+
+                try {
+                    File file=new File(imageX.getImagepath());
+                    Bitmap b = BitmapFactory.decodeStream(new FileInputStream(file));
+                    myPictureList.add(new ImageElement(file));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                //ImageElement element= new ImageElement(file)
+            }
+
+            return null;
+        }
     }
 
     public Activity getActivity() {
@@ -359,7 +389,7 @@ public class MainActivity extends AppCompatActivity {
         ContextWrapper wrapper = new ContextWrapper(getApplicationContext());
         // path to /data/data/yourapp/app_data/imageDir
         File directory = wrapper.getDir("imageDir", Context.MODE_PRIVATE);
-        String picName=getPictureName();
+        picName=getPictureName();
         // Create imageDir
         File mypath=new File(directory,picName);
 
@@ -400,7 +430,6 @@ public class MainActivity extends AppCompatActivity {
     // I added name because we also need a unique name
     private void loadImageFromStorage(String path,String name)
     {
-
         try {
             File f=new File(path, name);
             Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
@@ -411,7 +440,6 @@ public class MainActivity extends AppCompatActivity {
         {
             e.printStackTrace();
         }
-
 
     }
 }

@@ -10,6 +10,7 @@ public class ImageElement {
 
     int image=-1;
     File file=null;
+
     private String title;
     private String description;
     private String date;
@@ -53,4 +54,5 @@ public class ImageElement {
         this.date=date;
     }
     public void setImagePath(String imagePath){this.imagePath=imagePath;}
+
 }

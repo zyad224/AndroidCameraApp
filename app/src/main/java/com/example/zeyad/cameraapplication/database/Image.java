@@ -30,6 +30,7 @@ public class Image {
     @PrimaryKey
     public int id;
 
+
     public String title;
     public String description;
     public String imagepath;
@@ -47,6 +48,7 @@ public class Image {
         this.description = description;
         this.imagepath=imagepath;
         this.locationId = locationId;
+
     }
 
     public Image(Context context, String title, String description,String imagepath, int locationId) {
@@ -71,6 +73,7 @@ public class Image {
 
     public void setImagepath(String imagepath){this.imagepath=imagepath;}
     public String getImagepath(){return imagepath;}
+
     public void setId(int id) {
         this.id = id;
     }
