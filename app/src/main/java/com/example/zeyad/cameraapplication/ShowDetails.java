@@ -24,6 +24,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -112,7 +115,9 @@ public class ShowDetails extends AppCompatActivity {
                 //get the db
                 db= MainActivity.getDB();
                 new InsertIntoDatabaseTask().execute();
-                new SearchDatabaseTask().execute();
+                //new SearchDatabaseTask().execute();
+              //  new AllImageTask().execute();
+
                 finish();
 
             }
@@ -141,6 +146,32 @@ public class ShowDetails extends AppCompatActivity {
             return null;
         }
     }
+
+    private class AllImageTask extends AsyncTask<Void, Void, Void>{
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            //This Part will take the images from db and write in main page
+            List<Image> imageList = db.imageDao().loadImages();
+            for (Image imageX : imageList) {
+
+
+                Log.i("MainActivity", "imgpath: " + imageX.getImagepath());
+
+               /* try {
+                    File file=new File(imageX.getImagepath());
+                    Bitmap b = BitmapFactory.decodeStream(new FileInputStream(file));
+                    myPictureList.add(new ImageElement(file));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }*/
+                //ImageElement element= new ImageElement(file)
+            }
+
+            return null;
+        }
+    }
+
 
     private class SearchDatabaseTask extends AsyncTask<Void, Void, Void> {
 

@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
         //loadImageFromStorage("imageDir");
 
-        new AllImageTask().execute();
+       // new AllImageTask().execute();
 
         if (myPictureList==null || myPictureList.size()==0) {
             initData();
@@ -306,27 +306,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     ///////// Taking Images from Database -----------------
-    private class AllImageTask extends AsyncTask<Void, Void, Void>{
-        @Override
-        protected Void doInBackground(Void... voids) {
-
-            //This Part will take the images from db and write in main page
-           List<Image> imageList = db.imageDao().loadImages();
-           for (Image imageX : imageList) {
-
-                try {
-                    File file=new File(imageX.getImagepath());
-                    Bitmap b = BitmapFactory.decodeStream(new FileInputStream(file));
-                    myPictureList.add(new ImageElement(file));
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-                //ImageElement element= new ImageElement(file)
-            }
-
-            return null;
-        }
-    }
 
     public Activity getActivity() {
         return activity;
@@ -399,6 +378,7 @@ public class MainActivity extends AppCompatActivity {
             // Use the compress method on the BitMap object to write image to the OutputStream
             bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, fos);
             fos.flush();
+            fos.close();
             /*Context context = getApplicationContext();
             CharSequence text = "Hello toast!"+bitmapImage;
             int duration = Toast.LENGTH_SHORT;
@@ -415,14 +395,14 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         Context context = getApplicationContext();
-        CharSequence text = directory.getAbsolutePath();
+        CharSequence text = mypath.getAbsolutePath();
         int duration = Toast.LENGTH_SHORT;
 
         Toast toast = Toast.makeText(context, text, duration);
         toast.show();
 
         // we need to convert uri when we want back it 
-        return directory.getAbsolutePath();
+        return mypath.getAbsolutePath();
 
     }
 
