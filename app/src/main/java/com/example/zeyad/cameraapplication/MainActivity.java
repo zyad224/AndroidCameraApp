@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageElement element;
 
     /////----------------------
-    private String imagePath;
+   // private String imagePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -287,11 +287,12 @@ public class MainActivity extends AppCompatActivity {
                 element.setLatitude(latitude);
                 element.setLongitude(longitude);
             }
+            element.setImagePath(saveToInternalStorage(bitmap));
             imageElementList.add(element);
             // and call the save method with bitmap image
             // in database you said that we need the path of image
             // here giving the path of the image
-            imagePath=saveToInternalStorage(bitmap);
+           // imagePath=saveToInternalStorage(bitmap);
         }
 
         return imageElementList;
@@ -323,43 +324,10 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
-    private class InsertIntoDatabaseTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            ///////////////////// GPS
-            Location location = new Location(latitude, longitude, 20);
-            db.imageDao().insertLocation(location);
-            ///////////------- Image
-            //Image image = new Image(imagePath,"","",location.getId());
-
-            // Image image= new Image(getApplicationContext(), R.drawable.joe1, "joe1", "this is Joe 1", location.getId());
-            //db.imageDao().insertImage(image);
-
-            return null;
-        }
-    }
-
-    private class SearchDatabaseTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            Log.i("MainActivity", "finding Joe1");
-            List<Image> imageList = db.imageDao().findImageByTitle("joe1");
-            for (Image imageX : imageList) {
-                Log.i("MainActivity", "title: " + imageX.getTitle() + "  description: " + imageX.getDescription());
-            }
+    public static AppDatabase getDB(){return db;}
 
 
-            Log.i("MainActivity", "finding by area");
-            imageList = db.imageDao().findImagesByArea(53.38297, 1.46590, 100);
-            for (Image imageX : imageList) {
-                Log.i("MainActivity", "title: " + imageX.getTitle() + "  description: " + imageX.getDescription());
-            }
-            return null;
-        }
-    }
+
 
     //////////////////////////////////////////// GPS
 

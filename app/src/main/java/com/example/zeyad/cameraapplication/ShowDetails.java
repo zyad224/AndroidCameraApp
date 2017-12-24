@@ -2,16 +2,21 @@ package com.example.zeyad.cameraapplication;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.zeyad.cameraapplication.database.AppDatabase;
+import com.example.zeyad.cameraapplication.database.Image;
+import com.example.zeyad.cameraapplication.database.Location;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -22,6 +27,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class ShowDetails extends AppCompatActivity {
 
@@ -34,6 +40,7 @@ public class ShowDetails extends AppCompatActivity {
     private ImageView imageView;
     private  String reportDate;
     private static GoogleMap mMap;
+    private static AppDatabase db;
 
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -100,6 +107,14 @@ public class ShowDetails extends AppCompatActivity {
                 date.setText(reportDate);
                 element.setDate(date.getText().toString());
 
+
+                //save image
+                //get the db
+                db= MainActivity.getDB();
+                new InsertIntoDatabaseTask().execute();
+                new SearchDatabaseTask().execute();
+                finish();
+
             }
         });
     }
@@ -113,7 +128,41 @@ public class ShowDetails extends AppCompatActivity {
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
     }
+    private class InsertIntoDatabaseTask extends AsyncTask<Void, Void, Void> {
 
+        @Override
+        protected Void doInBackground(Void... voids) {
+            ///////////////////// GPS
+            Location location = new Location(element.getLatitude(), element.getLongitude(), 20);
+            db.imageDao().insertLocation(location);
+            Image image=new Image(getApplicationContext(),element.getTitle(),element.getDescription(),element.getImagePath(),location.getId());
+            db.imageDao().insertImage(image);
+
+            return null;
+        }
+    }
+
+    private class SearchDatabaseTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            Log.i("MainActivity", "finding Joe1");
+            List<Image> imageList = db.imageDao().findImageByTitle("moh");
+            for (Image imageX : imageList) {
+                Log.i("MainActivity", "title: " + imageX.getTitle() + "  description: " + imageX.getDescription());
+                Log.i("MainActivity", "imgpath: " + imageX.getImagepath() + "  locid: " + imageX.getLocationId());
+
+            }
+
+
+           /* Log.i("MainActivity", "finding by area");
+            imageList = db.imageDao().findImagesByArea(53.38297, 1.46590, 100);
+            for (Image imageX : imageList) {
+                Log.i("MainActivity", "title: " + imageX.getTitle() + "  description: " + imageX.getDescription());
+            }*/
+            return null;
+        }
+    }
     private void initilaizeFields()
     {
         title.setText("Title");

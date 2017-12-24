@@ -32,7 +32,7 @@ public class Image {
 
     public String title;
     public String description;
-
+    public String imagepath;
     @ColumnInfo(name = "location_id")
     public int locationId;
 
@@ -41,19 +41,20 @@ public class Image {
     @Ignore
     Bitmap thumbnail;
 
-    public Image(int id, String title, String description, int locationId) {
+    public Image(int id, String title, String description,String imagepath, int locationId) {
         this.id = id;
         this.title = title;
         this.description = description;
+        this.imagepath=imagepath;
         this.locationId = locationId;
     }
 
-    public Image(Context context, int drawable, String title, String description, int locationId) {
+    public Image(Context context, String title, String description,String imagepath, int locationId) {
         this.title= title;
         this.description= description;
-
-        Drawable vectorDrawable = ResourcesCompat.getDrawable(context.getResources(), drawable, null);
-        this.picture= ((BitmapDrawable) vectorDrawable).getBitmap();
+        this.imagepath=imagepath;
+       // Drawable vectorDrawable = ResourcesCompat.getDrawable(context.getResources(), drawable, null);
+       // this.picture= ((BitmapDrawable) vectorDrawable).getBitmap();
         // create the thumbnail yourself!
         //
 
@@ -68,10 +69,11 @@ public class Image {
         return id;
     }
 
+    public void setImagepath(String imagepath){this.imagepath=imagepath;}
+    public String getImagepath(){return imagepath;}
     public void setId(int id) {
         this.id = id;
     }
-
     public String getTitle() {
         return title;
     }
