@@ -31,6 +31,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.arch.persistence.room.Room;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.io.File;
@@ -73,6 +74,9 @@ public class MainActivity extends AppCompatActivity {
     private double latitude;
     static boolean flag=true;
     private ImageElement element;
+    private ProgressBar progressBar;
+    Integer count =1;
+
 
     /////----------------------
    // private String imagePath;
@@ -86,21 +90,24 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         activity= this;
 
+
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setMax(10);
+        progressBar.setVisibility(View.VISIBLE);
+        progressBar.setProgress(0);
+
         mRecyclerView = (RecyclerView) findViewById(R.id.grid_recycler_view);
         int numberOfColumns = 4;
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
         mAdapter= new MyAdapter(myPictureList);
         mRecyclerView.setAdapter(mAdapter);
 
-        ////////////
 
-        //loadImageFromStorage("imageDir");
 
-       // new AllImageTask().execute();
 
-        if (myPictureList==null || myPictureList.size()==0) {
+       /* if (myPictureList==null || myPictureList.size()==0) {
             initData();
-        }
+        }*/
 
         // required by Android 6.0 +
         checkPermissions(getApplicationContext());
@@ -146,16 +153,26 @@ public class MainActivity extends AppCompatActivity {
                     .build();
 
 
-          new AllImageTask().execute();
 
-        // these functions will be used with the GPS
-        // to insert and retrieves images from DB
-        /*
-        new InsertIntoDatabaseTask().execute();
-        // search the database
-        new SearchDatabaseTask().execute();*/
+        new Thread(new loadImagesFromDb()).start();
+
     }
 
+
+    private class loadImagesFromDb implements Runnable{
+
+        @Override
+        public void run() {
+            try {
+
+                new AllImageTask().execute();
+
+            }catch(Exception e){
+
+                e.printStackTrace();
+            }
+        }
+    }
     ///------///// Unique name for Images
 
     private String getPictureName(){
@@ -337,29 +354,43 @@ public class MainActivity extends AppCompatActivity {
     public static AppDatabase getDB(){return db;}
 
 
-    private class AllImageTask extends AsyncTask<Void, Void, Void>{
+    private class AllImageTask extends AsyncTask<Void, Void, List<Image> >{
         @Override
-        protected Void doInBackground(Void... voids) {
+        protected List<Image> doInBackground(Void... Voids) {
 
             //This Part will take the images from db and write in main page
-            List<Image> imageList = db.imageDao().loadImages();
-            for (Image imageX : imageList) {
+            List<Image> imageList=new ArrayList<>();
 
-
-                Log.i("MainActivity", "imgpath: " + imageX.getImagepath());
-
-               /* try {
-                    File file=new File(imageX.getImagepath());
-                    Bitmap b = BitmapFactory.decodeStream(new FileInputStream(file));
-                    myPictureList.add(new ImageElement(file));
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }*/
-                //ImageElement element= new ImageElement(file)
+            if(db.imageDao().imageCount()!=0) {
+                imageList = db.imageDao().loadImages();
+                for (Image img : imageList) {
+                    File file = new File(img.getImagepath());
+                    ImageElement imgFromStorage = new ImageElement(file);
+                    myPictureList.add(imgFromStorage);
+                }
             }
 
-            return null;
+            Log.i("imgCount", "count: " + db.imageDao().imageCount());
+
+            return imageList;
         }
+
+        @Override
+        protected void onPostExecute(List<Image> imageList) {
+
+            //here you should update the grid
+            if(!imageList.isEmpty()) {
+
+                mAdapter.notifyDataSetChanged();
+
+            }
+
+            progressBar.setVisibility(View.GONE);
+
+
+        }
+
+
     }
 
     //////////////////////////////////////////// GPS

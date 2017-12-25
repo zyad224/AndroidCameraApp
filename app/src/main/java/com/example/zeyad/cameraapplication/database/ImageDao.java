@@ -33,6 +33,9 @@ public interface ImageDao {
     @Query("SELECT * FROM Image")
     public List<Image> loadImages();
 
+    @Query("SELECT COUNT(*) FROM Image")
+    public int imageCount();
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertImage(Image image);
 

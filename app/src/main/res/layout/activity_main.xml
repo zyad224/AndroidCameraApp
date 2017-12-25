@@ -50,6 +50,16 @@
         app:fabSize="normal"
         app:srcCompat="@android:drawable/ic_menu_camera"/>
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="@android:style/Widget.ProgressBar"
+        android:layout_width="fill_parent"
+        android:layout_height="41dp"
+        android:layout_gravity="center|center"
+        android:maxHeight="20dip"
+
+        android:minHeight="20dip" />
+
 
 
 </android.support.design.widget.CoordinatorLayout>
