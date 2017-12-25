@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-    ///------///// Unique name for Images
+    ///------///// Unique name for Image
 
     private String getPictureName(){
         // provide unique name for us
