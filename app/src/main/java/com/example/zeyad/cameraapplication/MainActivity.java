@@ -229,28 +229,6 @@ public class MainActivity extends AppCompatActivity {
                 .setCopyPickedImagesToPublicGalleryAppFolder(false)
                 .setAllowMultiplePickInGallery(true);
     }
-
-    private void initData() {
-        myPictureList.add(new ImageElement(R.drawable.joe1));
-        myPictureList.add(new ImageElement(R.drawable.joe2));
-        myPictureList.add(new ImageElement(R.drawable.joe3));
-        myPictureList.add(new ImageElement(R.drawable.joe1));
-        myPictureList.add(new ImageElement(R.drawable.joe2));
-        myPictureList.add(new ImageElement(R.drawable.joe3));
-        myPictureList.add(new ImageElement(R.drawable.joe1));
-        myPictureList.add(new ImageElement(R.drawable.joe2));
-        myPictureList.add(new ImageElement(R.drawable.joe3));
-        myPictureList.add(new ImageElement(R.drawable.joe1));
-        myPictureList.add(new ImageElement(R.drawable.joe2));
-        myPictureList.add(new ImageElement(R.drawable.joe3));
-        myPictureList.add(new ImageElement(R.drawable.joe1));
-        myPictureList.add(new ImageElement(R.drawable.joe2));
-        myPictureList.add(new ImageElement(R.drawable.joe3));
-    }
-
-    //////////////////
-    /*
-*/
     private void checkPermissions(final Context context) {
         int currentAPIVersion = Build.VERSION.SDK_INT;
         if (currentAPIVersion >= android.os.Build.VERSION_CODES.M) {
@@ -391,35 +369,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static AppDatabase getDB(){return db;}
-
-    /////////////////////////////////////////////////////////////////////////
-    //we can read the folder and images now !!!!!!
-    public void NewList(){
-
-        File fileDir = new File(directory.toString());
-        if(!fileDir.exists() || !fileDir.isDirectory()){
-
-        }
-        String[] SavedFiles=  fileDir.list();
-
-        for(String img: SavedFiles){
-            String newone = directory.toString()+"/"+img;
-            File file = new File(newone);
-            ImageElement imgFromStorage = new ImageElement(file);
-            myPictureList.add(imgFromStorage);
-            ///////////////////
-            Context context = getApplicationContext();
-            CharSequence text = file.toString();
-            int duration = Toast.LENGTH_SHORT;
-
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
-
-        }
-
-    }
-    ///////////////////////////////////////////////////////////////////////////
-
     private class AllImageTask extends AsyncTask<Void, Void, List<Image> >{
         @Override
         protected List<Image> doInBackground(Void... Voids) {
@@ -459,8 +408,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    //////////////////////////////////////////// GPS
-
     @Override
     protected void onResume(){
         super.onResume();
@@ -484,7 +431,6 @@ public class MainActivity extends AppCompatActivity {
             unregisterReceiver(broadcastReceiver);
         }
     }
-   //////////////////----------------------------- Saving Image
     private String saveToInternalStorage(Bitmap bitmapImage){
 
         picName=getPictureName();
@@ -524,9 +470,6 @@ public class MainActivity extends AppCompatActivity {
         return mypath.getAbsolutePath();
 
     }
-
-
-    // I added name because we also need a unique name
     private void loadImageFromStorage(String path,String name)
     {
         try {

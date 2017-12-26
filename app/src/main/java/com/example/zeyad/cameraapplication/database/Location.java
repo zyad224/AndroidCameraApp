@@ -20,7 +20,7 @@ public class Location {
 
     public double latitude;
     public double longitude;
-    public double accuracy;
+    public int accuracy;
 
     public Location(double latitude, double longitude, int accuracy) {
         this.latitude= latitude;
@@ -32,5 +32,10 @@ public class Location {
     public int getId() {
         return this.id;
     }
+    public double getLongitude() {
+        return this.longitude;
+    }
+    public double getLatitude(){return this.latitude;}
+
 
 }

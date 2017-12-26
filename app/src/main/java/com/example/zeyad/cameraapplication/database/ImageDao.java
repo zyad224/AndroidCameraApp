@@ -29,6 +29,9 @@ public interface ImageDao {
     @Query("SELECT * FROM Image WHERE title=:title")
     public List<Image> findImageByTitle (String title);
 
+    @Query("SELECT * FROM Location WHERE id=:id")
+    public Location findLocationById (int id);
+
     ////////////////////////////////////////////////////
     @Query("SELECT * FROM Image WHERE imagepath=:path")
     public Image findImageByPath (String path);

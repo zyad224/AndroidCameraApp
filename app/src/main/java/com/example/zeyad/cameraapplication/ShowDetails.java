@@ -92,38 +92,10 @@ public class ShowDetails extends AppCompatActivity {
 
                 }
 
-               // The first I thought like this
-              /*  List<Image> imageList = new ArrayList<>();
-                imageList = db.imageDao().loadImages();
-                for(Image img: imageList){
-                    File file = new File(img.getImagepath());
-                    if(element.file.toString() == img.getImagepath()){
-                        title.setText(img.getTitle());
-                        description.setText(img.getDescription());
-                    }
-                }*/
+                if(element.getImagePath()!=null)
+                    new getImageFrmDb_imgPath().execute(element.getImagePath());
 
-              //after that this one makes sense
-              ///////////////////////////////////////////////////////////////////
-                /*db= MainActivity.getDB();
-                new SearchDatabaseTask().execute();
 
-                finish();
-
-                Context context = getApplicationContext();
-                CharSequence text = element.getImagePath().toString();
-                int duration = Toast.LENGTH_SHORT;
-
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.show();*/
-
-            ///////////////////////////////////////////////////////////////////////////
-                title.setText(element.getTitle());
-                description.setText(element.getDescription());
-                date.setText(element.getDate());
-
-                latitude.setText(String.valueOf(element.getLatitude()));
-                longitude.setText(String.valueOf(element.getLongitude()));
             }
 
         }
@@ -139,20 +111,7 @@ public class ShowDetails extends AppCompatActivity {
                 element.setDescription(description.getText().toString());
                 date.setText(reportDate);
                 element.setDate(date.getText().toString());
-
-
-                Context context = getApplicationContext();
-                CharSequence text = element.getImagePath().toString() ;
-                int duration = Toast.LENGTH_SHORT;
-
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.show();
-
-                //save image
-                //get the db
-                db= MainActivity.getDB();
                 new InsertIntoDatabaseTask().execute();
-                //new SearchDatabaseTask().execute();
 
                 finish();
 
@@ -168,6 +127,26 @@ public class ShowDetails extends AppCompatActivity {
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
+    }
+
+    private class getImageFrmDb_imgPath extends AsyncTask<String, Void, Image>{
+        @Override
+        protected Image doInBackground(String... s) {
+           Image image= db.imageDao().findImageByPath(s[0]);
+            return image;
+        }
+
+        @Override
+        protected void onPostExecute(Image image) {
+            super.onPostExecute(image);
+            title.setText(image.getTitle());
+            description.setText(image.getDescription());
+           // date.setText(element.getDate());
+            Location location=db.imageDao().findLocationById(image.getLocationId());
+            latitude.setText(String.valueOf(location.getLatitude()));
+            longitude.setText(String.valueOf(location.getLongitude()));
+
+        }
     }
     private class InsertIntoDatabaseTask extends AsyncTask<Void, Void, Void> {
 
