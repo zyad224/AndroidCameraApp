@@ -1,5 +1,6 @@
 package com.example.zeyad.cameraapplication;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.zeyad.cameraapplication.database.AppDatabase;
 import com.example.zeyad.cameraapplication.database.Image;
@@ -28,6 +30,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -45,6 +48,7 @@ public class ShowDetails extends AppCompatActivity {
     private static GoogleMap mMap;
     private static AppDatabase db;
 
+    private Image path;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -88,6 +92,32 @@ public class ShowDetails extends AppCompatActivity {
 
                 }
 
+               // The first I thought like this
+              /*  List<Image> imageList = new ArrayList<>();
+                imageList = db.imageDao().loadImages();
+                for(Image img: imageList){
+                    File file = new File(img.getImagepath());
+                    if(element.file.toString() == img.getImagepath()){
+                        title.setText(img.getTitle());
+                        description.setText(img.getDescription());
+                    }
+                }*/
+
+              //after that this one makes sense
+              ///////////////////////////////////////////////////////////////////
+                /*db= MainActivity.getDB();
+                new SearchDatabaseTask().execute();
+
+                finish();
+
+                Context context = getApplicationContext();
+                CharSequence text = element.getImagePath().toString();
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();*/
+
+            ///////////////////////////////////////////////////////////////////////////
                 title.setText(element.getTitle());
                 description.setText(element.getDescription());
                 date.setText(element.getDate());
@@ -110,6 +140,13 @@ public class ShowDetails extends AppCompatActivity {
                 date.setText(reportDate);
                 element.setDate(date.getText().toString());
 
+
+                Context context = getApplicationContext();
+                CharSequence text = element.getImagePath().toString() ;
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
 
                 //save image
                 //get the db
@@ -147,8 +184,6 @@ public class ShowDetails extends AppCompatActivity {
     }
 
 
-
-
     private class SearchDatabaseTask extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -161,6 +196,19 @@ public class ShowDetails extends AppCompatActivity {
 
             }
 
+            //path = db.imageDao().findImageByPath(element.file.toString());
+
+            //////////////
+
+           /* path = db.imageDao().findImageByPath(element.getImagePath());
+
+            if(path.getImagepath()!="") {
+                title.setText(path.getTitle());
+                description.setText(path.getDescription());
+
+            }*/
+
+           //////////////////////
 
            /* Log.i("MainActivity", "finding by area");
             imageList = db.imageDao().findImagesByArea(53.38297, 1.46590, 100);

@@ -47,6 +47,7 @@ import com.example.zeyad.cameraapplication.database.*;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.common.base.Converter;
 
 import pl.aprilapps.easyphotopicker.DefaultCallback;
 import pl.aprilapps.easyphotopicker.EasyImage;
@@ -58,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_READ_EXTERNAL_STORAGE = 2987;
     private static final int REQUEST_WRITE_EXTERNAL_STORAGE = 7829;
     private static final String TAG = "MainActivity";
-    private static List<ImageElement> myPictureList = new ArrayList<>();
+    private static List<ImageElement> myPictureList ;
     private RecyclerView.Adapter  mAdapter;
     private RecyclerView mRecyclerView;
     private Activity activity;
@@ -69,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
     private String picName;
     private ImageView imageView;
 
+    File directory;
+
     private BroadcastReceiver broadcastReceiver; // getting tha data
     private double longitude;
     private double latitude;
@@ -78,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
     Integer count =1;
 
 
-    /////----------------------
    // private String imagePath;
 
     @Override
@@ -89,6 +91,18 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         activity= this;
+
+
+        ///////////////////////////////////
+        // for count just one time to images
+        myPictureList = new ArrayList<>();
+
+
+        ////////////////////////////////////
+
+        ContextWrapper wrapper = new ContextWrapper(getApplicationContext());
+        // path to /data/data/yourapp/app_data/imageDir
+        directory = wrapper.getDir("imageDir", Context.MODE_PRIVATE);
 
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -102,8 +116,8 @@ public class MainActivity extends AppCompatActivity {
         mAdapter= new MyAdapter(myPictureList);
         mRecyclerView.setAdapter(mAdapter);
 
-
-
+        ////////////////////////////////////
+        //NewList();
 
        /* if (myPictureList==null || myPictureList.size()==0) {
             initData();
@@ -151,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
                     AppDatabase.class, "images_database")
                     .addMigrations(AppDatabase.MIGRATION_1_2)
                     .build();
+
 
 
 
@@ -353,6 +368,32 @@ public class MainActivity extends AppCompatActivity {
 
     public static AppDatabase getDB(){return db;}
 
+    /////////////////////////////////////////////////////////////////////////
+    //we can read the folder and images now !!!!!!
+    public void NewList(){
+
+        File fileDir = new File(directory.toString());
+        if(!fileDir.exists() || !fileDir.isDirectory()){
+
+        }
+        String[] SavedFiles=  fileDir.list();
+
+        for(String img: SavedFiles){
+            File file = new File(img);
+            ImageElement imgFromStorage = new ImageElement(file);
+            myPictureList.add(imgFromStorage);
+            ///////////////////
+            Context context = getApplicationContext();
+            CharSequence text = file.toString();
+            int duration = Toast.LENGTH_SHORT;
+
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+
+        }
+
+    }
+    ///////////////////////////////////////////////////////////////////////////
 
     private class AllImageTask extends AsyncTask<Void, Void, List<Image> >{
         @Override
@@ -420,9 +461,7 @@ public class MainActivity extends AppCompatActivity {
     }
    //////////////////----------------------------- Saving Image
     private String saveToInternalStorage(Bitmap bitmapImage){
-        ContextWrapper wrapper = new ContextWrapper(getApplicationContext());
-        // path to /data/data/yourapp/app_data/imageDir
-        File directory = wrapper.getDir("imageDir", Context.MODE_PRIVATE);
+
         picName=getPictureName();
         // Create imageDir
         File mypath=new File(directory,picName);
