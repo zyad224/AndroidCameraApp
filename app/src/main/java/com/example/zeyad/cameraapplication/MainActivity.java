@@ -183,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
                 String[] SavedFiles=  fileDir.list();
 
                 for(String img: SavedFiles){
-                    File file = new File(img);
+                    File file = new File(directory.toString()+"/"+img);
                     ImageElement imgFromStorage = new ImageElement(file);
                     Log.i("imgCount", "count: " + file);
                     myPictureList.add(imgFromStorage);
@@ -403,7 +403,8 @@ public class MainActivity extends AppCompatActivity {
         String[] SavedFiles=  fileDir.list();
 
         for(String img: SavedFiles){
-            File file = new File(img);
+            String newone = directory.toString()+"/"+img;
+            File file = new File(newone);
             ImageElement imgFromStorage = new ImageElement(file);
             myPictureList.add(imgFromStorage);
             ///////////////////
