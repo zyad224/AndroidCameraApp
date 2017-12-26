@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
     private String picName;
     private ImageView imageView;
 
-    File directory;
+    public File directory;
 
     private BroadcastReceiver broadcastReceiver; // getting tha data
     private double longitude;
@@ -116,12 +116,9 @@ public class MainActivity extends AppCompatActivity {
         mAdapter= new MyAdapter(myPictureList);
         mRecyclerView.setAdapter(mAdapter);
 
-        ////////////////////////////////////
-        //NewList();
 
-       /* if (myPictureList==null || myPictureList.size()==0) {
-            initData();
-        }*/
+
+
 
         // required by Android 6.0 +
         checkPermissions(getApplicationContext());
@@ -169,11 +166,38 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        new Thread(new loadImagesFromDb()).start();
+      //  new Thread(new loadImagesFromDb()).start();
+        new Thread(new loadImagesFromStorage()).start();
+
 
     }
 
 
+    private class loadImagesFromStorage implements Runnable{
+
+        @Override
+        public void run() {
+            try {
+
+                File fileDir = new File(directory.toString());
+                String[] SavedFiles=  fileDir.list();
+
+                for(String img: SavedFiles){
+                    File file = new File(img);
+                    ImageElement imgFromStorage = new ImageElement(file);
+                    Log.i("imgCount", "count: " + file);
+                    myPictureList.add(imgFromStorage);
+                }
+
+                progressBar.setVisibility(View.GONE);
+                mAdapter.notifyDataSetChanged();
+
+            }catch(Exception e){
+
+                e.printStackTrace();
+            }
+        }
+    }
     private class loadImagesFromDb implements Runnable{
 
         @Override
