@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
         if (db==null)
             db = Room.databaseBuilder(getApplicationContext(),
                     AppDatabase.class, "images_database")
-                    .addMigrations(AppDatabase.MIGRATION_1_2)
+                    .addMigrations(AppDatabase.MIGRATION_2_4)
                     .build();
 
 

@@ -18,7 +18,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract ImageDao imageDao();
 
 
-    public static final Migration MIGRATION_1_2 = new Migration(1, 2) {
+    public static final Migration MIGRATION_2_4 = new Migration(2, 4) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
             // we have not made any change so far
