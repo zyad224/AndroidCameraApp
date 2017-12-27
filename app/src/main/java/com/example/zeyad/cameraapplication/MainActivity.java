@@ -329,6 +329,7 @@ public class MainActivity extends AppCompatActivity {
                 element.setLongitude(longitude);
             }
             element.setImagePath(saveToInternalStorage(bitmap));
+            new InsertIntoDatabaseTask().execute(element);
 
             imageElementList.add(element);
             // and call the save method with bitmap image
@@ -407,7 +408,20 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+    private class InsertIntoDatabaseTask extends AsyncTask<ImageElement, Void, Void> {
 
+        @Override
+        protected Void doInBackground(ImageElement... img) {
+            ///////////////////// GPS
+            ImageElement e=img[0];
+            Location location = new Location(e.getLatitude(), e.getLongitude(), 20);
+            db.imageDao().insertLocation(location);
+            Image image=new Image(getApplicationContext(),e.getTitle(),e.getDescription(),e.getImagePath(),location.getId());
+            db.imageDao().insertImage(image);
+
+            return null;
+        }
+    }
     @Override
     protected void onResume(){
         super.onResume();

@@ -111,7 +111,6 @@ public class ShowDetails extends AppCompatActivity {
                 element.setDescription(description.getText().toString());
                 date.setText(reportDate);
                 element.setDate(date.getText().toString());
-                new InsertIntoDatabaseTask().execute();
 
                 finish();
 
@@ -148,19 +147,7 @@ public class ShowDetails extends AppCompatActivity {
 
         }
     }
-    private class InsertIntoDatabaseTask extends AsyncTask<Void, Void, Void> {
 
-        @Override
-        protected Void doInBackground(Void... voids) {
-            ///////////////////// GPS
-            Location location = new Location(element.getLatitude(), element.getLongitude(), 20);
-            db.imageDao().insertLocation(location);
-            Image image=new Image(getApplicationContext(),element.getTitle(),element.getDescription(),element.getImagePath(),location.getId());
-            db.imageDao().insertImage(image);
-
-            return null;
-        }
-    }
 
 
     private class SearchDatabaseTask extends AsyncTask<Void, Void, Void> {
