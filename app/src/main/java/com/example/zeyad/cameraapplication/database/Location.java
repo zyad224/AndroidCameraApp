@@ -20,9 +20,9 @@ public class Location {
 
     public double latitude;
     public double longitude;
-    public int accuracy;
+    public double accuracy;
 
-    public Location(double latitude, double longitude, int accuracy) {
+    public Location(double latitude, double longitude, double accuracy) {
         this.latitude= latitude;
         this.longitude= longitude;
         this.accuracy= accuracy;
