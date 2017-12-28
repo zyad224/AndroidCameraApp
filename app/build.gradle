@@ -49,5 +49,4 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.+'
     compile 'com.android.support:design:26.+'
     compile group: 'org.apache.httpcomponents' , name: 'httpclient-android' , version: '4.3.5.1'
-    compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
 }

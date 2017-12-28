@@ -34,11 +34,12 @@
 
     <TextView
         android:id="@+id/upload"
-        android:layout_width="247dp"
-        android:layout_height="143dp"
+        android:layout_width="256dp"
+        android:layout_height="32dp"
         android:layout_gravity="bottom|left"
         android:layout_weight="1"
         android:text="TextView"
-        tools:layout_editor_absoluteY="424dp" />
+        tools:layout_editor_absoluteX="48dp"
+        tools:layout_editor_absoluteY="535dp" />
 
 </android.support.design.widget.CoordinatorLayout>

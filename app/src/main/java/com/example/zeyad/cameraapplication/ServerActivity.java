@@ -15,7 +15,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.commons.io.IOUtils;
+//import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -23,7 +23,10 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import static com.example.zeyad.cameraapplication.ShowDetails.SER_KEY;
 
@@ -101,7 +104,8 @@ public class ServerActivity extends AppCompatActivity {
                     serverResult="recieve nothing from server";
                 }
                 else{
-                    serverResult = IOUtils.toString(in, "UTF-8");
+
+                    serverResult = inputstreamToString(in);
 
                 }
 
@@ -113,10 +117,22 @@ public class ServerActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(String reply) {
+        protected void onPostExecute(String serverResult) {
+            Log.i("serverResult", "serverResuly:"+serverResult);
             Toast.makeText(getBaseContext(), "Data Sent!", Toast.LENGTH_LONG).show();
         }
+
+        protected String inputstreamToString(InputStream in) throws IOException {
+            BufferedReader r = new BufferedReader(new InputStreamReader(in));
+            StringBuilder total = new StringBuilder();
+            String line;
+            while ((line = r.readLine()) != null) {
+                total.append(line).append('\n');
+            }
+            return total.toString();
+        }
     }
+
 
     public boolean isConnected(){
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
