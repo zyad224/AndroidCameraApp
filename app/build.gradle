@@ -19,6 +19,9 @@ android {
             sourceCompatibility JavaVersion.VERSION_1_8
             targetCompatibility JavaVersion.VERSION_1_8
         }
+        android {
+            useLibrary 'org.apache.http.legacy'
+        }
     }
     buildTypes {
         release {
@@ -45,4 +48,6 @@ dependencies {
     compile 'com.github.jkwiecien:EasyImage:2.0.3'
     compile 'com.android.support.constraint:constraint-layout:1.+'
     compile 'com.android.support:design:26.+'
+    compile group: 'org.apache.httpcomponents' , name: 'httpclient-android' , version: '4.3.5.1'
+    compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
 }

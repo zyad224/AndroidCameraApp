@@ -1,6 +1,7 @@
 package com.example.zeyad.cameraapplication;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -49,7 +50,7 @@ public class ShowDetails extends AppCompatActivity {
     private static AppDatabase db;
 
     private Image path;
-
+    public  final static String SER_KEY = "serial";
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +103,8 @@ public class ShowDetails extends AppCompatActivity {
 
 
         FloatingActionButton saveDetails = (FloatingActionButton) findViewById(R.id.saveDetails);
+        FloatingActionButton uploadServer = (FloatingActionButton) findViewById(R.id.uploadServer);
+
         saveDetails.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -113,6 +116,23 @@ public class ShowDetails extends AppCompatActivity {
                 element.setDate(date.getText().toString());
 
                 finish();
+
+            }
+        });
+
+
+        uploadServer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent intent= new Intent(ShowDetails.this, ServerActivity.class);
+                Bundle b=new Bundle();
+                b.putSerializable(SER_KEY,element);
+                intent.putExtras(b);
+
+                startActivity(intent);
+
+
 
             }
         });

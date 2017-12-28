@@ -1,16 +1,18 @@
 package com.example.zeyad.cameraapplication;
 
 import java.io.File;
+import java.io.Serializable;
 
 /**
  * Created by Zeyad on 12/19/2017.
  */
 
-public class ImageElement {
+public class ImageElement implements Serializable {
 
     int image=-1;
     File file=null;
 
+    private static final long serialVersionUID = 1L;
     private String title;
     private String description;
     private String date;

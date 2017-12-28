@@ -66,4 +66,15 @@
         app:layout_anchorGravity="right|bottom"
         app:srcCompat="@android:drawable/ic_menu_save" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/uploadServer"
+        android:layout_width="66dp"
+        android:layout_height="63dp"
+        android:layout_gravity="bottom|left"
+        app:fabSize="normal"
+        android:clickable="true"
+        app:srcCompat="@android:drawable/ic_menu_upload"
+        tools:layout_editor_absoluteX="264dp"
+        tools:layout_editor_absoluteY="469dp" />
+
 </android.support.design.widget.CoordinatorLayout>

@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -43,7 +44,11 @@
         <service android:name=".GPS_Service" />
 
         <activity android:name=".ShowImageActivity" />
-        <activity android:name=".ShowDetails"></activity>
+        <activity android:name=".ShowDetails" />
+        <activity
+            android:name=".ServerActivity"
+            android:label="@string/title_activity_server"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
