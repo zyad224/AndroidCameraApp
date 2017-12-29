@@ -1,6 +1,7 @@
 package com.example.zeyad.cameraapplication;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -11,6 +12,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,12 +34,17 @@ import static com.example.zeyad.cameraapplication.ShowDetails.SER_KEY;
 
 public class ServerActivity extends AppCompatActivity {
 
+    private int position;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_server);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //getSupportActionBar().setTitle();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         TextView upload= (TextView) findViewById(R.id.upload);
@@ -67,6 +74,20 @@ public class ServerActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    //// for giving back to the position
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                Intent intent = new Intent(this, ShowDetails.class);
+                intent.putExtra("position", position);
+                startActivity(intent);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private class SendToServer extends AsyncTask<ImageElement, Void, String>{

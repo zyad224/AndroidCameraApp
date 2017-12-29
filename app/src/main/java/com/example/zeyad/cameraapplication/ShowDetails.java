@@ -11,7 +11,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -48,6 +50,7 @@ public class ShowDetails extends AppCompatActivity {
     private  String reportDate;
     private static GoogleMap mMap;
     private static AppDatabase db;
+    private int position;
     private Image path;
     public  final static String SER_KEY = "serial";
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -58,6 +61,9 @@ public class ShowDetails extends AppCompatActivity {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map2);
         mapFragment.getMapAsync(this::onMapReady);
+
+        //getSupportActionBar().setTitle();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 
@@ -73,10 +79,15 @@ public class ShowDetails extends AppCompatActivity {
         latitude =(TextView) findViewById(R.id.latitude);
         longitude = (TextView) findViewById(R.id.longitude);
 
+
         Bundle b = getIntent().getExtras();
-        int position=-1;
-        title.setFocusableInTouchMode(true);
-        description.setFocusableInTouchMode(true);
+        position=-1;
+        //title.setFocusableInTouchMode(true);
+        title.setEnabled(false);
+        //title.setFocusable(false);
+        description.setEnabled(false);
+        //description.setFocusableInTouchMode(true);
+
         db=MainActivity.getDB();
         if(b != null) {
             // this is the image position in the itemList
@@ -109,17 +120,29 @@ public class ShowDetails extends AppCompatActivity {
         FloatingActionButton saveDetails = (FloatingActionButton) findViewById(R.id.saveDetails);
         FloatingActionButton uploadServer = (FloatingActionButton) findViewById(R.id.uploadServer);
 
-        saveDetails.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                title.setFocusable(false);
-                description.setFocusable(false);
-                element.setTitle(title.getText().toString());
-                element.setDescription(description.getText().toString());
-                date.setText(reportDate);
-                element.setDate(date.getText().toString());
+        Button edit = (Button) findViewById(R.id.button);
 
-                finish();
+        edit.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View view){
+
+                title.setFocusableInTouchMode(true);
+                description.setFocusableInTouchMode(true);
+                title.setEnabled(true);
+                description.setEnabled(true);
+                saveDetails.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        title.setFocusable(false);
+                        description.setFocusable(false);
+                        element.setTitle(title.getText().toString());
+                        element.setDescription(description.getText().toString());
+                        date.setText(reportDate);
+                        element.setDate(date.getText().toString());
+
+                        finish();
+
+                    }
+                });
 
             }
         });
@@ -140,6 +163,20 @@ public class ShowDetails extends AppCompatActivity {
 
             }
         });
+    }
+
+    /////////// for giving back the position
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                Intent intent = new Intent(this, ShowImageActivity.class);
+                intent.putExtra("position",position);
+                startActivity(intent);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     public void onMapReady(GoogleMap googleMap) {

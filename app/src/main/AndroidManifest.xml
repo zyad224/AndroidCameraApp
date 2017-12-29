@@ -43,8 +43,10 @@
 
         <service android:name=".GPS_Service" />
 
-        <activity android:name=".ShowImageActivity" />
-        <activity android:name=".ShowDetails" />
+        <activity android:name=".ShowImageActivity"
+            android:parentActivityName=".MainActivity"/>
+        <activity android:name=".ShowDetails"
+            android:parentActivityName=".ShowImageActivity"/>
         <activity
             android:name=".ServerActivity"
             android:label="@string/title_activity_server"

@@ -17,6 +17,9 @@ public class ShowImageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_image);
 
+        //getSupportActionBar().setTitle();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         Bundle b = getIntent().getExtras();
         position=-1;
         if(b != null) {
