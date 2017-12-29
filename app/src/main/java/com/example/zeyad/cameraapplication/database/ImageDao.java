@@ -33,7 +33,7 @@ public interface ImageDao {
     public Location findLocationById (int id);
 
     ////////////////////////////////////////////////////
-    @Query("SELECT * FROM Image WHERE imagepath=:path")
+    @Query("SELECT * FROM Image WHERE imagepath LIKE :path")
     public Image findImageByPath (String path);
 
     //// for all pictures

@@ -48,7 +48,6 @@ public class ShowDetails extends AppCompatActivity {
     private  String reportDate;
     private static GoogleMap mMap;
     private static AppDatabase db;
-
     private Image path;
     public  final static String SER_KEY = "serial";
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -78,6 +77,7 @@ public class ShowDetails extends AppCompatActivity {
         int position=-1;
         title.setFocusableInTouchMode(true);
         description.setFocusableInTouchMode(true);
+        db=MainActivity.getDB();
         if(b != null) {
             // this is the image position in the itemList
             position = b.getInt("position");
@@ -93,7 +93,11 @@ public class ShowDetails extends AppCompatActivity {
 
                 }
 
+                Log.i("showdetails", "imagePath"+element.file);
+
                 if(element.getImagePath()!=null)
+                    // when you change element.getimagepath to element.file.toString, you will be able to see the path
+                    //the problem is when you open and close the app and try to show details of image
                     new getImageFrmDb_imgPath().execute(element.getImagePath());
 
 
@@ -148,62 +152,27 @@ public class ShowDetails extends AppCompatActivity {
 
     }
 
-    private class getImageFrmDb_imgPath extends AsyncTask<String, Void, Image>{
+    private class getImageFrmDb_imgPath extends AsyncTask<String, Void, Wrapper>{
         @Override
-        protected Image doInBackground(String... s) {
-           Image image= db.imageDao().findImageByPath(s[0]);
-            return image;
-        }
-
-        @Override
-        protected void onPostExecute(Image image) {
-            super.onPostExecute(image);
-            title.setText(image.getTitle());
-            description.setText(image.getDescription());
-           // date.setText(element.getDate());
+        protected Wrapper doInBackground(String... s) {
+            String imagePath=s[0];
+            Image image= db.imageDao().findImageByPath(imagePath);
             Location location=db.imageDao().findLocationById(image.getLocationId());
-            latitude.setText(String.valueOf(location.getLatitude()));
-            longitude.setText(String.valueOf(location.getLongitude()));
-
+            Wrapper w=new Wrapper(image,location);
+            return w;
         }
-    }
-
-
-
-    private class SearchDatabaseTask extends AsyncTask<Void, Void, Void> {
 
         @Override
-        protected Void doInBackground(Void... voids) {
-            Log.i("MainActivity", "finding Joe1");
-            List<Image> imageList = db.imageDao().findImageByTitle("moh");
-            for (Image imageX : imageList) {
-                Log.i("MainActivity", "title: " + imageX.getTitle() + "  description: " + imageX.getDescription());
-                Log.i("MainActivity", "imgpath: " + imageX.getImagepath() + "  locid: " + imageX.getLocationId());
+        protected void onPostExecute(Wrapper w) {
 
-            }
+            latitude.setText(String.valueOf(w.getLocation().getLatitude()));
+            longitude.setText(String.valueOf(w.getLocation().getLongitude()));
 
-            //path = db.imageDao().findImageByPath(element.file.toString());
-
-            //////////////
-
-           /* path = db.imageDao().findImageByPath(element.getImagePath());
-
-            if(path.getImagepath()!="") {
-                title.setText(path.getTitle());
-                description.setText(path.getDescription());
-
-            }*/
-
-           //////////////////////
-
-           /* Log.i("MainActivity", "finding by area");
-            imageList = db.imageDao().findImagesByArea(53.38297, 1.46590, 100);
-            for (Image imageX : imageList) {
-                Log.i("MainActivity", "title: " + imageX.getTitle() + "  description: " + imageX.getDescription());
-            }*/
-            return null;
         }
     }
+
+
+
     private void initilaizeFields()
     {
         title.setText("Title");

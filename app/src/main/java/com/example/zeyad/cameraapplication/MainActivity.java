@@ -101,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
         ////////////////////////////////////
 
         ContextWrapper wrapper = new ContextWrapper(getApplicationContext());
-        // path to /data/data/yourapp/app_data/imageDir
         directory = wrapper.getDir("imageDir", Context.MODE_PRIVATE);
 
 
@@ -126,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
         initEasyImage();
 
 
-        FloatingActionButton fab2 = (FloatingActionButton) findViewById(R.id.fab2);
+        FloatingActionButton fabMap = (FloatingActionButton) findViewById(R.id.fab2);
         FloatingActionButton fabGallery = (FloatingActionButton) findViewById(R.id.fab_gallery);
         FloatingActionButton fabCamera = (FloatingActionButton) findViewById(R.id.fab_camera);
 
@@ -149,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        fab2.setOnClickListener(new View.OnClickListener() {
+        fabMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent=new Intent(MainActivity.this, MapActivity.class);
@@ -165,8 +164,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
-      //  new Thread(new loadImagesFromDb()).start();
         new Thread(new loadImagesFromStorage()).start();
 
 
@@ -179,13 +176,13 @@ public class MainActivity extends AppCompatActivity {
         public void run() {
             try {
 
+
                 File fileDir = new File(directory.toString());
                 String[] SavedFiles=  fileDir.list();
 
                 for(String img: SavedFiles){
                     File file = new File(directory.toString()+"/"+img);
                     ImageElement imgFromStorage = new ImageElement(file);
-                    Log.i("imgCount", "count: " + file);
                     myPictureList.add(imgFromStorage);
                 }
 
@@ -198,21 +195,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-    private class loadImagesFromDb implements Runnable{
 
-        @Override
-        public void run() {
-            try {
 
-                new AllImageTask().execute();
-
-            }catch(Exception e){
-
-                e.printStackTrace();
-            }
-        }
-    }
-    ///------///// Unique name for Image
 
     private String getPictureName(){
         // provide unique name for us
@@ -319,24 +303,28 @@ public class MainActivity extends AppCompatActivity {
      */
     private List<ImageElement> getImageElements(List<File> returnedPhotos) {
         List<ImageElement> imageElementList= new ArrayList<>();
+
         for (File file: returnedPhotos){
 
             ImageElement element= new ImageElement(file);
             // take the image
             bitmap = BitmapFactory.decodeFile(element.file.getAbsolutePath());
+
             if(flag){
                 element.setLatitude(latitude);
                 element.setLongitude(longitude);
             }
             element.setImagePath(saveToInternalStorage(bitmap));
+
             new InsertIntoDatabaseTask().execute(element);
+            Log.i("MainActivity", "imgpath: " + element.getImagePath());
 
             imageElementList.add(element);
-            // and call the save method with bitmap image
-            // in database you said that we need the path of image
-            // here giving the path of the image
-           // imagePath=saveToInternalStorage(bitmap);
+
+
+
         }
+        flag=false;
 
         return imageElementList;
     }
@@ -413,13 +401,23 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(ImageElement... img) {
             ///////////////////// GPS
-            ImageElement e=img[0];
-            Location location = new Location(e.getLatitude(), e.getLongitude(), 20);
-            db.imageDao().insertLocation(location);
-            Image image=new Image(getApplicationContext(),e.getTitle(),e.getDescription(),e.getImagePath(),location.getId());
-            db.imageDao().insertImage(image);
+             ImageElement e=img[0];
+             Location location = new Location(e.getLatitude(), e.getLongitude(), 20.0);
+             db.imageDao().insertLocation(location);
+             Image image=new Image(getApplicationContext(),e.getTitle(),e.getDescription(),e.getImagePath(),location.getId());
+             db.imageDao().insertImage(image);
 
+            List<Image> imageList = db.imageDao().loadImages();
+
+           // for(Image im:imageList)
+           //     Log.i("MainActivity", "imgs: "+ im.getImagepath() );
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            Toast.makeText(getBaseContext(), "Image Saved in DataBase", Toast.LENGTH_LONG).show();
+
         }
     }
     @Override
@@ -477,25 +475,12 @@ public class MainActivity extends AppCompatActivity {
         CharSequence text = mypath.getAbsolutePath();
         int duration = Toast.LENGTH_SHORT;
 
-        Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
+       // Toast toast = Toast.makeText(context, text, duration);
+        //toast.show();
 
         // we need to convert uri when we want back it 
         return mypath.getAbsolutePath();
 
     }
-    private void loadImageFromStorage(String path,String name)
-    {
-        try {
-            File f=new File(path, name);
-            Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
-            ImageView img=(ImageView)findViewById(R.id.image_item);
-            img.setImageBitmap(b);
-        }
-        catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-        }
 
-    }
 }
