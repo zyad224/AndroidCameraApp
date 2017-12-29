@@ -176,7 +176,8 @@ public class MainActivity extends AppCompatActivity {
         public void run() {
             try {
 
-
+                myPictureList.clear();
+                mAdapter.notifyDataSetChanged();
                 File fileDir = new File(directory.toString());
                 String[] SavedFiles=  fileDir.list();
 
@@ -315,8 +316,8 @@ public class MainActivity extends AppCompatActivity {
                 element.setLongitude(longitude);
             }
             element.setImagePath(saveToInternalStorage(bitmap));
-
             new InsertIntoDatabaseTask().execute(element);
+            new Thread(new loadImagesFromStorage()).start();
             Log.i("MainActivity", "imgpath: " + element.getImagePath());
 
             imageElementList.add(element);

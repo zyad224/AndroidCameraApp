@@ -106,10 +106,8 @@ public class ShowDetails extends AppCompatActivity {
 
                 Log.i("showdetails", "imagePath"+element.file);
 
-                if(element.getImagePath()!=null)
-                    // when you change element.getimagepath to element.file.toString, you will be able to see the path
-                    //the problem is when you open and close the app and try to show details of image
-                    new getImageFrmDb_imgPath().execute(element.getImagePath());
+                if(element.file.getAbsolutePath()!=null)
+                    new getImageFrmDb_imgPath().execute(element.file.getAbsolutePath());
 
 
             }
