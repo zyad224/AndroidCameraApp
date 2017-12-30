@@ -22,6 +22,15 @@
             android:background="@android:color/transparent"
             />
 
+        <Button
+            android:id="@+id/deletebutton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|right"
+            android:text="Delete"
+            android:background="@android:color/transparent"
+            />
+
         <ImageView
             android:id="@+id/image_copy"
             android:layout_width="386dp"

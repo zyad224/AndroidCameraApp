@@ -36,6 +36,10 @@ public interface ImageDao {
     @Query("SELECT * FROM Image WHERE imagepath LIKE :path")
     public Image findImageByPath (String path);
 
+    ////////////////////////////////////////////////////
+    @Query("UPDATE Image SET title=:title, description=:description WHERE imagepath in(:path) ")
+    void updateImageDetails(String path, String title, String description);
+
     //// for all pictures
     @Query("SELECT * FROM Image")
     public List<Image> loadImages();

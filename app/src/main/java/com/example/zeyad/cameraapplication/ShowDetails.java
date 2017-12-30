@@ -136,7 +136,7 @@ public class ShowDetails extends AppCompatActivity {
                         element.setDescription(description.getText().toString());
                         date.setText(reportDate);
                         element.setDate(date.getText().toString());
-
+                        new UpdateImageDetails().execute(element);
                         finish();
 
                     }
@@ -202,10 +202,25 @@ public class ShowDetails extends AppCompatActivity {
 
             latitude.setText(String.valueOf(w.getLocation().getLatitude()));
             longitude.setText(String.valueOf(w.getLocation().getLongitude()));
+            title.setText(w.getImage().getTitle());
+            description.setText(w.getImage().getDescription());
+            LatLng position = new LatLng(w.getLocation().getLatitude(),w.getLocation().getLongitude());
+            mMap.addMarker(new MarkerOptions().position(position).title(w.getImage().getTitle()));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
 
         }
     }
 
+    private class UpdateImageDetails extends AsyncTask<ImageElement, Void, Void>{
+        @Override
+        protected Void doInBackground(ImageElement... img) {
+
+            ImageElement e=img[0];
+            db.imageDao().updateImageDetails(e.file.getAbsolutePath().toString(),e.getTitle(),e.getDescription());
+
+            return null;
+        }
+    }
 
 
     private void initilaizeFields()
