@@ -18,21 +18,22 @@
             android:layout_height="wrap_content"
             android:layout_gravity="top|right">
 
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|right"
-                android:text="Edit"
-                app:srcCompat="@android:drawable/ic_menu_edit" />
 
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/deletebutton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <ImageButton
+                android:id="@+id/delete"
+                android:layout_width="72dp"
+                android:layout_height="113dp"
+
                 android:layout_gravity="top|right"
-                app:srcCompat="@android:drawable/ic_delete"
-                android:text="Delete"/>
+                android:src="@drawable/delete" />
+
+            <ImageButton
+                android:id="@+id/edit"
+                android:layout_width="88dp"
+                android:layout_height="match_parent"
+
+                android:layout_gravity="top|right"
+                android:src="@drawable/edit" />
 
         </LinearLayout>
 

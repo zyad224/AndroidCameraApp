@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -56,6 +57,8 @@ public class ShowDetails extends AppCompatActivity {
     private static AppDatabase db;
     private int position;
     private Image path;
+    private ImageButton edit;
+    private ImageButton delete;
     public  final static String SER_KEY = "serial";
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -138,7 +141,9 @@ public class ShowDetails extends AppCompatActivity {
         FloatingActionButton saveDetails = (FloatingActionButton) findViewById(R.id.saveDetails);
         FloatingActionButton uploadServer = (FloatingActionButton) findViewById(R.id.uploadServer);
 
-        FloatingActionButton edit = (FloatingActionButton) findViewById(R.id.button);
+
+        edit=(ImageButton) findViewById(R.id.edit);
+        delete = (ImageButton) findViewById(R.id.delete);
 
         edit.setOnClickListener(new View.OnClickListener(){
             public void onClick(View view){
