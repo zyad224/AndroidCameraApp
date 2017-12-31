@@ -94,6 +94,8 @@ public class MapActivity extends AppCompatActivity {
 
         mButtonStop = (Button) findViewById(R.id.button_stop);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         db=MainActivity.getDB();
 
         //new GetAllImage().execute();
