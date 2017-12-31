@@ -1,5 +1,6 @@
 package com.example.zeyad.cameraapplication;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -11,17 +12,20 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.zeyad.cameraapplication.database.AppDatabase;
 import com.example.zeyad.cameraapplication.database.Image;
 import com.example.zeyad.cameraapplication.database.Location;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -60,7 +64,23 @@ public class ShowDetails extends AppCompatActivity {
         setContentView(R.layout.activity_show_details);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map2);
-        mapFragment.getMapAsync(this::onMapReady);
+        mapFragment.getMapAsync(onMapReadyCallback);
+        @SuppressLint("ResourceType") View zoomControls = mapFragment.getView().findViewById(0x1);
+
+        if (zoomControls != null && zoomControls.getLayoutParams() instanceof RelativeLayout.LayoutParams) {
+            // ZoomControl is inside of RelativeLayout
+            RelativeLayout.LayoutParams params_zoom = (RelativeLayout.LayoutParams) zoomControls.getLayoutParams();
+
+            // Align it to - parent top|left
+            params_zoom.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+            params_zoom.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+
+            // Update margins, set to 10dp
+            final int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10,
+                    getResources().getDisplayMetrics());
+            params_zoom.setMargins(margin, margin, margin, margin);
+
+        }
 
         //getSupportActionBar().setTitle();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -118,7 +138,7 @@ public class ShowDetails extends AppCompatActivity {
         FloatingActionButton saveDetails = (FloatingActionButton) findViewById(R.id.saveDetails);
         FloatingActionButton uploadServer = (FloatingActionButton) findViewById(R.id.uploadServer);
 
-        Button edit = (Button) findViewById(R.id.button);
+        FloatingActionButton edit = (FloatingActionButton) findViewById(R.id.button);
 
         edit.setOnClickListener(new View.OnClickListener(){
             public void onClick(View view){
@@ -177,15 +197,21 @@ public class ShowDetails extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+    OnMapReadyCallback onMapReadyCallback = new OnMapReadyCallback() {
+        @Override
+        public void onMapReady(GoogleMap googleMap) {
+            mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(element.getLatitude(), element.getLongitude());
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
-    }
+            // Add a marker in Sydney and move the camera
+            LatLng sydney = new LatLng(-34, 151);
+            mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+            mMap.getUiSettings().setZoomControlsEnabled(true);
+            CameraUpdate zoom=CameraUpdateFactory.zoomTo(15);
+            mMap.animateCamera(zoom);
+            //new GetAllImage().execute();
+        }
+    };
 
     private class getImageFrmDb_imgPath extends AsyncTask<String, Void, Wrapper>{
         @Override
@@ -207,6 +233,9 @@ public class ShowDetails extends AppCompatActivity {
             LatLng position = new LatLng(w.getLocation().getLatitude(),w.getLocation().getLongitude());
             mMap.addMarker(new MarkerOptions().position(position).title(w.getImage().getTitle()));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
+            mMap.getUiSettings().setZoomControlsEnabled(true);
+            CameraUpdate zoom=CameraUpdateFactory.zoomTo(15);
+            mMap.animateCamera(zoom);
 
         }
     }

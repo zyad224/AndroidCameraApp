@@ -6,14 +6,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.zeyad.cameraapplication.database.AppDatabase;
+import com.example.zeyad.cameraapplication.database.Image;
+import com.example.zeyad.cameraapplication.database.Location;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -22,11 +28,14 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by sakin on 18.12.2017.
  */
 
-public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapActivity extends AppCompatActivity {
     private Button mButtonStart;
     private Button mButtonStop;
     private TextView textView;
@@ -34,6 +43,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
     private static final int MY_ACCESS_FINE_LOCATION = 123;
     private BroadcastReceiver broadcastReceiver; // getting tha data
     //static MapsActivity activity;
+    private static AppDatabase db;
 
     private double longitude;
     private double latitude;
@@ -75,7 +85,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        mapFragment.getMapAsync(onMapReadyCallback);
 
         textView = (TextView) findViewById(R.id.textView);
         mButtonStart = (Button) findViewById(R.id.button_start);
@@ -83,6 +93,10 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         //mButtonStart.setEnabled(true);
 
         mButtonStop = (Button) findViewById(R.id.button_stop);
+
+        db=MainActivity.getDB();
+
+        //new GetAllImage().execute();
 
         //mButtonStop.setEnabled(false);
         if(!runtime_permission()){
@@ -148,17 +162,47 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         }
     }
 
+    private class GetAllImage extends AsyncTask<Void, Void, Void > {
+        @Override
+        protected Void doInBackground(Void... Voids) {
 
+            //This Part will take the images from db and write in main page
+            List<Image> imageList=new ArrayList<>();
 
+            if(db.imageDao().imageCount()!=0) {
+                imageList = db.imageDao().loadImages();
+                for (Image img : imageList) {
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+                    Location location=db.imageDao().findLocationById(img.getLocationId());
+                    LatLng position = new LatLng(location.getLatitude(), location.getLongitude());
+                    Log.i("latitude", "value: " + location.getLatitude());
+                    Log.i("latitude", "value: " + location.getLongitude());
+                    mMap.addMarker(new MarkerOptions().position(position).title("gfj"));
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(longitude, latitude);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+                }
+            }
+
+            Log.i("imgCount", "count: " + db.imageDao().imageCount());
+
+            return null;
+        }
 
     }
+
+
+    OnMapReadyCallback onMapReadyCallback = new OnMapReadyCallback() {
+        @Override
+        public void onMapReady(GoogleMap googleMap) {
+            mMap = googleMap;
+
+            // Add a marker in Sydney and move the camera
+            LatLng sydney = new LatLng(-34, 151);
+            mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+            mMap.getUiSettings().setZoomControlsEnabled(true);
+            CameraUpdate zoom=CameraUpdateFactory.zoomTo(15);
+            mMap.animateCamera(zoom);
+
+        }
+    };
 }
