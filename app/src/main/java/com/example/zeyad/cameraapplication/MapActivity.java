@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.zeyad.cameraapplication.database.AppDatabase;
 import com.example.zeyad.cameraapplication.database.Image;
@@ -48,35 +49,9 @@ public class MapActivity extends AppCompatActivity {
     private double longitude;
     private double latitude;
 
-    protected void onResume() {
 
-        super.onResume();
-        if(broadcastReceiver == null){
-            broadcastReceiver = new BroadcastReceiver(){
 
-                @Override
-                public void onReceive(Context context, Intent intent) {
 
-                    textView.append("\n" + intent.getExtras().get("Longitude"));
-                    textView.append("\n" + intent.getExtras().get("Latitude"));
-                    longitude =(double)intent.getExtras().get("Longitude");
-                    latitude = (double)intent.getExtras().get("Latitude");
-                    LatLng sydney = new LatLng(latitude, longitude);
-                    mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-                    mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
-                }
-            };
-        }
-        registerReceiver(broadcastReceiver, new IntentFilter("location_update"));
-    }
-
-    protected void onDestroy(){
-        super.onDestroy();
-        if(broadcastReceiver !=null){
-            unregisterReceiver(broadcastReceiver);
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,109 +61,55 @@ public class MapActivity extends AppCompatActivity {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(onMapReadyCallback);
-
-        textView = (TextView) findViewById(R.id.textView);
-        mButtonStart = (Button) findViewById(R.id.button_start);
-
-        //mButtonStart.setEnabled(true);
-
-        mButtonStop = (Button) findViewById(R.id.button_stop);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         db=MainActivity.getDB();
 
-        //new GetAllImage().execute();
 
-        //mButtonStop.setEnabled(false);
-        if(!runtime_permission()){
-            enable_button();
-        }
-    }
-    private void enable_button(){
+        new GetLocations().execute();
 
-        mButtonStart.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getApplicationContext(), GPS_Service.class);
-                startService(i);
-                //startLocationUpdates();
-                //if(mButtonStop!=null)
-                //  mButtonStop.setEnabled(true);
-                //mButtonStart.setEnabled(true);
-            }
-        });
 
-        mButtonStop.setOnClickListener(new View.OnClickListener(){
-
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getApplicationContext(),GPS_Service.class);
-                stopService(i);
-                //stopLocationUpdates();
-                //if(mButtonStart!=null)
-                //    mButtonStart.setEnabled(true);
-                //mButtonStop.setEnabled(true);
-            }
-        });
     }
 
-    private boolean runtime_permission(){
-        if(Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, Manifest.permission
-                .ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest
-                .permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission
-                    .ACCESS_COARSE_LOCATION},100);
 
-            return true; // if we need permission checking
-        }
-        return false; // if we do not need permission checking
-    }
 
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode,permissions,grantResults);
-        switch (requestCode) {case MY_ACCESS_FINE_LOCATION: {
-            // If request is cancelled, the result arrays are empty.
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager
-                    .PERMISSION_GRANTED) {
-                enable_button();
-                //startLocationUpdatesAux(getApplicationContext());
-            } else {
-                runtime_permission();
-            }
-            return;
-        }
-        // other 'case' lines to check for other
-        // permissions this app might request
 
-        }
-    }
 
-    private class GetAllImage extends AsyncTask<Void, Void, Void > {
+    private class GetLocations extends AsyncTask<Void, Void, List<Wrapper> > {
         @Override
-        protected Void doInBackground(Void... Voids) {
+        protected List<Wrapper> doInBackground(Void... Voids) {
 
-            //This Part will take the images from db and write in main page
-            List<Image> imageList=new ArrayList<>();
+            List<Location> locations=new ArrayList<>();
+            List<Image>images=new ArrayList<>();
+            List<Wrapper>locationsAndTitles=new ArrayList<>();
+            locations=db.imageDao().loadLocations();
+            Wrapper w;
+            if(!locations.isEmpty()){
+                 for(Location lo:locations){
 
-            if(db.imageDao().imageCount()!=0) {
-                imageList = db.imageDao().loadImages();
-                for (Image img : imageList) {
+                     Image img=db.imageDao().findImageByLocationID(lo.getId());
+                     LatLng locOnMap = new LatLng(lo.getLatitude(), lo.getLongitude());
 
-                    Location location=db.imageDao().findLocationById(img.getLocationId());
-                    LatLng position = new LatLng(location.getLatitude(), location.getLongitude());
-                    Log.i("latitude", "value: " + location.getLatitude());
-                    Log.i("latitude", "value: " + location.getLongitude());
-                    mMap.addMarker(new MarkerOptions().position(position).title("gfj"));
 
-                }
+                     if(img!=null && img.getTitle()!=null) {
+                         w = new Wrapper(img.getTitle(), locOnMap);
+                         locationsAndTitles.add(w);
+                     }
+
+                 }
             }
 
-            Log.i("imgCount", "count: " + db.imageDao().imageCount());
 
-            return null;
+            return locationsAndTitles;
         }
 
+        @Override
+        protected void onPostExecute(List<Wrapper> w) {
+            for(Wrapper wo: w)
+                mMap.addMarker(new MarkerOptions().position(wo.getPositionOnMap()).title(wo.getImageTitle()));
+            Toast.makeText(getBaseContext(), "Locations Updated on Map", Toast.LENGTH_LONG).show();
+
+        }
     }
 
 
@@ -197,13 +118,10 @@ public class MapActivity extends AppCompatActivity {
         public void onMapReady(GoogleMap googleMap) {
             mMap = googleMap;
 
-            // Add a marker in Sydney and move the camera
-            LatLng sydney = new LatLng(-34, 151);
-            mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
             mMap.getUiSettings().setZoomControlsEnabled(true);
-            CameraUpdate zoom=CameraUpdateFactory.zoomTo(15);
+            CameraUpdate zoom=CameraUpdateFactory.zoomTo(0);
             mMap.animateCamera(zoom);
+
 
         }
     };

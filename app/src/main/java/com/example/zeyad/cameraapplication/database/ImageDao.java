@@ -32,6 +32,9 @@ public interface ImageDao {
     @Query("SELECT * FROM Location WHERE id=:id")
     public Location findLocationById (int id);
 
+    @Query("SELECT * FROM Image WHERE location_id=:id")
+    public Image findImageByLocationID (int id);
+
     ////////////////////////////////////////////////////
     @Query("SELECT * FROM Image WHERE imagepath LIKE :path")
     public Image findImageByPath (String path);
@@ -43,6 +46,9 @@ public interface ImageDao {
     //// for all pictures
     @Query("SELECT * FROM Image")
     public List<Image> loadImages();
+
+    @Query("SELECT * FROM Location")
+    public List<Location> loadLocations();
 
     @Query("SELECT COUNT(*) FROM Image")
     public int imageCount();
