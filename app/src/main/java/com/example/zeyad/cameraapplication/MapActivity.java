@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -26,7 +28,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
@@ -36,7 +40,7 @@ import java.util.List;
  * Created by sakin on 18.12.2017.
  */
 
-public class MapActivity extends AppCompatActivity {
+public class MapActivity extends AppCompatActivity  implements GoogleMap.OnMarkerClickListener {
     private Button mButtonStart;
     private Button mButtonStop;
     private TextView textView;
@@ -49,8 +53,7 @@ public class MapActivity extends AppCompatActivity {
     private double longitude;
     private double latitude;
 
-
-
+   private Marker m;
 
 
     @Override
@@ -92,7 +95,7 @@ public class MapActivity extends AppCompatActivity {
 
 
                      if(img!=null && img.getTitle()!=null) {
-                         w = new Wrapper(img.getTitle(), locOnMap);
+                         w = new Wrapper(img, locOnMap);
                          locationsAndTitles.add(w);
                      }
 
@@ -105,8 +108,14 @@ public class MapActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(List<Wrapper> w) {
-            for(Wrapper wo: w)
-                mMap.addMarker(new MarkerOptions().position(wo.getPositionOnMap()).title(wo.getImageTitle()));
+            Bitmap myBitmap;
+            for(Wrapper wo: w) {
+
+               m=   mMap.addMarker(new MarkerOptions().position(wo.getPositionOnMap()).title(wo.getImage().getTitle())
+                       .icon(BitmapDescriptorFactory.fromBitmap(myBitmap =decodeSampledBitmapFromResource(wo.getImage().getImagepath(), 50, 50))));
+               addListenerstoMarkers();
+            }
+
             Toast.makeText(getBaseContext(), "Locations Updated on Map", Toast.LENGTH_LONG).show();
 
         }
@@ -117,7 +126,6 @@ public class MapActivity extends AppCompatActivity {
         @Override
         public void onMapReady(GoogleMap googleMap) {
             mMap = googleMap;
-
             mMap.getUiSettings().setZoomControlsEnabled(true);
             CameraUpdate zoom=CameraUpdateFactory.zoomTo(0);
             mMap.animateCamera(zoom);
@@ -125,4 +133,56 @@ public class MapActivity extends AppCompatActivity {
 
         }
     };
+
+    public static Bitmap decodeSampledBitmapFromResource(String filePath, int reqWidth, int reqHeight) {
+
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(filePath, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(filePath, options);
+    }
+
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+
+    public void addListenerstoMarkers(){
+
+        mMap.setOnMarkerClickListener(this);
+    }
+    @Override
+    public boolean onMarkerClick(final Marker marker) {
+
+        LatLng markerPosition= marker.getPosition();
+        String markerTitle=marker.getTitle();
+
+        return false;
+    }
+
 }

@@ -22,8 +22,8 @@ public class Wrapper {
 
    }
 
-    public Wrapper (String imageTitle, LatLng locOnMap){
-        this.imageTitle=imageTitle;
+    public Wrapper (Image image, LatLng locOnMap){
+        this.image=image;
         this.locOnMap=locOnMap;
 
     }
