@@ -304,7 +304,7 @@ public class ShowDetails extends AppCompatActivity {
             mMap.addMarker(new MarkerOptions().position(position).title(w.getImage().getTitle()));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
             mMap.getUiSettings().setZoomControlsEnabled(true);
-            CameraUpdate zoom=CameraUpdateFactory.zoomTo(15);
+            CameraUpdate zoom=CameraUpdateFactory.zoomTo(10);
             mMap.animateCamera(zoom);
 
         }

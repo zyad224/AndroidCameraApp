@@ -42,17 +42,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="top|right">
+
             <ImageView
                 android:id="@+id/image_copy"
                 android:layout_width="220dp"
-                android:layout_height="220dp"
-                tools:layout_editor_absoluteX="56dp" />
+                android:layout_height="222dp"
+                tools:layout_editor_absoluteX="56dp"
+                android:padding="5dp"/>
 
             <android.support.design.widget.AppBarLayout
                 android:id="@+id/appBarLayout3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:theme="@style/AppTheme.AppBarOverlay">
+                android:theme="@style/AppTheme.AppBarOverlay"
+                android:padding="5dp">
 
                 <TextView
                     android:id="@+id/date"
@@ -110,6 +113,7 @@
         app:layout_anchor="@+id/appBarLayout2"
         app:layout_anchorGravity="bottom|right"
         app:srcCompat="@android:drawable/ic_menu_save"
+        app:backgroundTint="@android:color/holo_green_dark"
         tools:layout_editor_absoluteX="264dp"
         tools:layout_editor_absoluteY="469dp" />
 
@@ -120,6 +124,7 @@
         android:layout_gravity="bottom|left"
         app:fabSize="normal"
         android:clickable="true"
+        app:backgroundTint="@android:color/holo_red_dark"
         app:srcCompat="@android:drawable/ic_menu_upload"
         tools:layout_editor_absoluteX="264dp"
         tools:layout_editor_absoluteY="469dp" />
