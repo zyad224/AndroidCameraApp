@@ -2,6 +2,7 @@ package com.example.zeyad.cameraapplication;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,8 +10,10 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.MenuItem;
@@ -43,8 +46,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import static android.provider.AlarmClock.EXTRA_MESSAGE;
+
 public class ShowDetails extends AppCompatActivity {
 
+    private RecyclerView.Adapter  mAdapter;
     private EditText title;
     private EditText description;
     private TextView date;
@@ -55,6 +61,7 @@ public class ShowDetails extends AppCompatActivity {
     private  String reportDate;
     private static GoogleMap mMap;
     private static AppDatabase db;
+    private static List<ImageElement> picList ;
     private int position;
     private Image path;
     private ImageButton edit;
@@ -69,6 +76,8 @@ public class ShowDetails extends AppCompatActivity {
                 .findFragmentById(R.id.map2);
         mapFragment.getMapAsync(onMapReadyCallback);
         @SuppressLint("ResourceType") View zoomControls = mapFragment.getView().findViewById(0x1);
+
+        AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);
 
         if (zoomControls != null && zoomControls.getLayoutParams() instanceof RelativeLayout.LayoutParams) {
             // ZoomControl is inside of RelativeLayout
@@ -112,6 +121,7 @@ public class ShowDetails extends AppCompatActivity {
         //description.setFocusableInTouchMode(true);
 
         db=MainActivity.getDB();
+        picList=MainActivity.getImageList();
         if(b != null) {
             // this is the image position in the itemList
             position = b.getInt("position");
@@ -155,6 +165,18 @@ public class ShowDetails extends AppCompatActivity {
                 saveDetails.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        /// ikisinden biri boşsa save yapma
+                        String titleT=title.getText().toString();
+                        String descriptionT =description.getText().toString();
+                        if(titleT.isEmpty() && descriptionT.isEmpty()){
+                            Context context = getApplicationContext();
+                            CharSequence text = "Title and description cannot be empty!";
+                            int duration = Toast.LENGTH_SHORT;
+
+                            Toast toast = Toast.makeText(context, text, duration);
+                            toast.show();
+                        }
+                        else{
                         title.setFocusable(false);
                         description.setFocusable(false);
                         element.setTitle(title.getText().toString());
@@ -163,9 +185,55 @@ public class ShowDetails extends AppCompatActivity {
                         element.setDate(date.getText().toString());
                         new UpdateImageDetails().execute(element);
                         finish();
+                        }
 
                     }
                 });
+
+            }
+        });
+        delete.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View view) {
+
+                dlgAlert.setMessage("Do you want to delete the image");
+                dlgAlert.setTitle("Delete Image");
+                dlgAlert.setPositiveButton("Yes", null);
+                dlgAlert.setNegativeButton("No", null);
+                dlgAlert.setCancelable(true);
+                dlgAlert.create().show();
+
+                dlgAlert.setPositiveButton("Yes",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                //dismiss the dialog
+                                Context context = getApplicationContext();
+                                new DeleteIntoDatabaseTask().execute(element);
+                                File file =new File(element.file.getAbsolutePath());
+                                /*for(ImageElement e : picList ){
+                                    if(e.getImagePath().equals(element.file.getAbsolutePath()))
+                                        picList.remove(e);
+                                }
+                                mAdapter.notifyDataSetChanged();*/
+                                Toast.makeText(getBaseContext(), file.toString(), Toast.LENGTH_LONG).show();
+                                file.delete();
+
+                                Intent intent = new Intent(ShowDetails.this, MainActivity.class);
+                                MainActivity m = new MainActivity();
+                                intent.putExtra(EXTRA_MESSAGE, file);
+                                startActivity(intent);
+
+                            }
+                        });
+                dlgAlert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                        Toast.makeText(getBaseContext(), "Image is not deleted in DataBase", Toast.LENGTH_LONG).show();
+                    }
+                });
+
+                AlertDialog alert = dlgAlert.create();
+                alert.show();
 
             }
         });
@@ -181,9 +249,6 @@ public class ShowDetails extends AppCompatActivity {
                 intent.putExtras(b);
 
                 startActivity(intent);
-
-
-
             }
         });
     }
@@ -256,6 +321,24 @@ public class ShowDetails extends AppCompatActivity {
         }
     }
 
+    private class DeleteIntoDatabaseTask extends AsyncTask<ImageElement, Void, Void> {
+
+        @Override
+        protected Void doInBackground(ImageElement... img) {
+            ///////////////////// GPS
+            ImageElement e=img[0];
+            Image image =db.imageDao().findImageByPath(e.file.getAbsolutePath());
+            db.imageDao().deleteImage(image);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            Toast.makeText(getBaseContext(), "Image deleted in DataBase", Toast.LENGTH_LONG).show();
+
+        }
+    }
 
     private void initilaizeFields()
     {

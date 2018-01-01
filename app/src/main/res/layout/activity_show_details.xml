@@ -76,13 +76,15 @@
                     android:id="@+id/title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignBottom="@+id/longitude"/>
+                    android:layout_alignBottom="@+id/longitude"
+                    android:hint="Title"/>
 
                 <EditText
                     android:id="@+id/details"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignBottom="@+id/title"/>
+                    android:layout_alignBottom="@+id/title"
+                    android:hint="Description"/>
 
 
             </android.support.design.widget.AppBarLayout>

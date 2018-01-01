@@ -187,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
                     myPictureList.add(imgFromStorage);
                 }
 
+
                 progressBar.setVisibility(View.GONE);
                 mAdapter.notifyDataSetChanged();
 
@@ -359,6 +360,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static AppDatabase getDB(){return db;}
+    public static List<ImageElement> getImageList(){return myPictureList;}
+
     private class AllImageTask extends AsyncTask<Void, Void, List<Image> >{
         @Override
         protected List<Image> doInBackground(Void... Voids) {
