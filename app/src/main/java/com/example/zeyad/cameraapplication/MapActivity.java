@@ -34,6 +34,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -49,11 +50,10 @@ public class MapActivity extends AppCompatActivity  implements GoogleMap.OnMarke
     private BroadcastReceiver broadcastReceiver; // getting tha data
     //static MapsActivity activity;
     private static AppDatabase db;
-
     private double longitude;
     private double latitude;
-
-   private Marker m;
+    public Marker m;
+    HashMap<Integer, String> hashMap = new HashMap<Integer, String>();
 
 
     @Override
@@ -114,6 +114,7 @@ public class MapActivity extends AppCompatActivity  implements GoogleMap.OnMarke
                m=   mMap.addMarker(new MarkerOptions().position(wo.getPositionOnMap()).title(wo.getImage().getTitle())
                        .icon(BitmapDescriptorFactory.fromBitmap(myBitmap = MyAdapter.decodeSampledBitmapFromResource
                                (wo.getImage().getImagepath(), 50, 50))));
+               hashMap.put(Integer.parseInt(m.getId()),wo.getImage().getImagepath());
                addListenerstoMarkers();
             }
 
@@ -143,11 +144,14 @@ public class MapActivity extends AppCompatActivity  implements GoogleMap.OnMarke
     @Override
     public boolean onMarkerClick(final Marker marker) {
 
-        LatLng markerPosition= marker.getPosition();
-        String markerTitle=marker.getTitle();
 
+       String imagePath=hashMap.get(Integer.parseInt(marker.getId()));
 
-        return false;
+        Intent intent  = new Intent(getApplicationContext(),ImageFromMap.class);
+        intent.putExtra("image",imagePath);
+        startActivity(intent);
+
+        return true;
     }
 
 
