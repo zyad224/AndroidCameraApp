@@ -21,19 +21,19 @@
 
             <ImageButton
                 android:id="@+id/delete"
-                android:layout_width="72dp"
-                android:layout_height="113dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
 
                 android:layout_gravity="top|right"
-                android:src="@drawable/delete" />
+                android:src="@drawable/rsz_delete" />
 
             <ImageButton
                 android:id="@+id/edit"
-                android:layout_width="88dp"
+                android:layout_width="32dp"
                 android:layout_height="match_parent"
 
                 android:layout_gravity="top|right"
-                android:src="@drawable/edit" />
+                android:src="@drawable/rsz_1edit" />
 
         </LinearLayout>
 

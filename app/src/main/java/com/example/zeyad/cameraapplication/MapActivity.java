@@ -53,7 +53,7 @@ public class MapActivity extends AppCompatActivity  implements GoogleMap.OnMarke
     private double longitude;
     private double latitude;
     public Marker m;
-    HashMap<Integer, String> hashMap = new HashMap<Integer, String>();
+    HashMap<String, String> hashMap = new HashMap<String, String>();
 
 
     @Override
@@ -114,7 +114,7 @@ public class MapActivity extends AppCompatActivity  implements GoogleMap.OnMarke
                m=   mMap.addMarker(new MarkerOptions().position(wo.getPositionOnMap()).title(wo.getImage().getTitle())
                        .icon(BitmapDescriptorFactory.fromBitmap(myBitmap = MyAdapter.decodeSampledBitmapFromResource
                                (wo.getImage().getImagepath(), 50, 50))));
-               hashMap.put(Integer.parseInt(m.getId()),wo.getImage().getImagepath());
+               hashMap.put((m.getId()),wo.getImage().getImagepath());
                addListenerstoMarkers();
             }
 
@@ -145,7 +145,7 @@ public class MapActivity extends AppCompatActivity  implements GoogleMap.OnMarke
     public boolean onMarkerClick(final Marker marker) {
 
 
-       String imagePath=hashMap.get(Integer.parseInt(marker.getId()));
+       String imagePath=hashMap.get((marker.getId()));
 
         Intent intent  = new Intent(getApplicationContext(),ImageFromMap.class);
         intent.putExtra("image",imagePath);
