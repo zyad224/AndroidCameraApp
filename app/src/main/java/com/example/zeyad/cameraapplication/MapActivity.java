@@ -56,6 +56,30 @@ public class MapActivity extends AppCompatActivity  implements GoogleMap.OnMarke
     HashMap<String, String> hashMap = new HashMap<String, String>();
 
 
+    /*@Override
+    protected void onResume(){
+        super.onResume();
+        if(broadcastReceiver == null){
+            broadcastReceiver = new BroadcastReceiver(){
+
+                @Override
+                public void onReceive(Context context, Intent intent) {
+
+                    longitude =(double)intent.getExtras().get("Longitude");
+                    latitude = (double)intent.getExtras().get("Latitude");
+                }
+            };
+        }
+        registerReceiver(broadcastReceiver, new IntentFilter("location_update"));
+
+    }
+    protected void onDestroy(){
+        super.onDestroy();
+        if(broadcastReceiver !=null){
+            unregisterReceiver(broadcastReceiver);
+        }
+    }*/
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,15 +92,9 @@ public class MapActivity extends AppCompatActivity  implements GoogleMap.OnMarke
 
         db=MainActivity.getDB();
 
-
         new GetLocations().execute();
 
-
     }
-
-
-
-
 
     private class GetLocations extends AsyncTask<Void, Void, List<Wrapper> > {
         @Override
@@ -94,7 +112,7 @@ public class MapActivity extends AppCompatActivity  implements GoogleMap.OnMarke
                      LatLng locOnMap = new LatLng(lo.getLatitude(), lo.getLongitude());
 
 
-                     if(img!=null && img.getTitle()!=null) {
+                     if(img!=null ) {
                          w = new Wrapper(img, locOnMap);
                          locationsAndTitles.add(w);
                      }
