@@ -43,6 +43,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import com.example.zeyad.cameraapplication.database.*;
@@ -165,9 +166,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (db==null)
             db = Room.databaseBuilder(getApplicationContext(),
-                    AppDatabase.class, "images_database")
-                    .addMigrations(AppDatabase.MIGRATION_2_4)
-                    .build();
+                AppDatabase.class, "images_database")
+                .addMigrations( AppDatabase.MIGRATION_4_5)
+                .build();
 
 
 
@@ -463,11 +464,17 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(ImageElement... img) {
+            SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+            // Get the date today using Calendar object.
+            Date today = Calendar.getInstance().getTime();
+            // Using DateFormat format method we can create a string
+            // representation of a date with the defined format.
+            String reportDate = df.format(today);
             ///////////////////// GPS
              ImageElement e=img[0];
              Location location = new Location(e.getLatitude(), e.getLongitude(), 20.0);
              db.imageDao().insertLocation(location);
-             Image image=new Image(getApplicationContext(),e.getTitle(),e.getDescription(),e.getImagePath(),location.getId());
+             Image image=new Image(getApplicationContext(),e.getTitle(),e.getDescription(),reportDate,e.getImagePath(),location.getId());
              db.imageDao().insertImage(image);
 
             List<Image> imageList = db.imageDao().loadImages();

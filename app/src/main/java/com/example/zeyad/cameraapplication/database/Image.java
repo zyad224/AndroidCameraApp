@@ -33,6 +33,7 @@ public class Image {
 
     public String title;
     public String description;
+    public String date;
     public String imagepath;
     @ColumnInfo(name = "location_id")
     public int locationId;
@@ -42,18 +43,20 @@ public class Image {
     @Ignore
     Bitmap thumbnail;
 
-    public Image(int id, String title, String description,String imagepath, int locationId) {
+    public Image(int id, String title, String description,String date,String imagepath, int locationId) {
         this.id = id;
         this.title = title;
         this.description = description;
+        this.date = date;
         this.imagepath=imagepath;
         this.locationId = locationId;
 
     }
 
-    public Image(Context context, String title, String description,String imagepath, int locationId) {
+    public Image(Context context, String title, String description,String date,String imagepath, int locationId) {
         this.title= title;
         this.description= description;
+        this.date=date;
         this.imagepath=imagepath;
        // Drawable vectorDrawable = ResourcesCompat.getDrawable(context.getResources(), drawable, null);
        // this.picture= ((BitmapDrawable) vectorDrawable).getBitmap();
@@ -92,6 +95,10 @@ public class Image {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public String getDate(){return date;}
+
+    public void setDate(String date){this.date=date;}
 
     public int getLocationId() {
         return locationId;

@@ -196,7 +196,6 @@ public class ShowDetails extends AppCompatActivity {
                         description.setFocusable(false);
                         element.setTitle(title.getText().toString());
                         element.setDescription(description.getText().toString());
-                        date.setText(reportDate);
                         element.setDate(date.getText().toString());
                         new UpdateImageDetails().execute(element);
 
@@ -333,6 +332,7 @@ public class ShowDetails extends AppCompatActivity {
             longitude.setText(String.valueOf(w.getLocation().getLongitude()));
             title.setText(w.getImage().getTitle());
             description.setText(w.getImage().getDescription());
+            date.setText(w.getImage().getDate());
             LatLng position = new LatLng(w.getLocation().getLatitude(),w.getLocation().getLongitude());
             mMap.addMarker(new MarkerOptions().position(position).title(w.getImage().getTitle()).snippet(w.getImage().getDescription()));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
