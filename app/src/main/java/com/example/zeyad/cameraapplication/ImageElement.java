@@ -19,6 +19,8 @@ public class ImageElement implements Serializable {
     private double longitude;
     private double latitude;
     private String imagePath;
+    private String imageLength;
+    private String imageWidth;
 
     //drawable
     public ImageElement(int image) {
@@ -43,6 +45,8 @@ public class ImageElement implements Serializable {
     public double getLongitude(){return longitude;}
     public double getLatitude() {return  latitude;}
     public String getImagePath(){return imagePath;}
+    public String getImageLength(){return imageLength;}
+    public String getImageWidth(){return imageWidth;}
 
     public void setTitle(String title){
         this.title=title;
@@ -56,5 +60,7 @@ public class ImageElement implements Serializable {
         this.date=date;
     }
     public void setImagePath(String imagePath){this.imagePath=imagePath;}
+    public void setImageLength(String imageLength){this.imageLength=imageLength;}
+    public void setImageWidth(String imageWidth){this.imageWidth=imageWidth;}
 
 }

@@ -68,8 +68,8 @@ public class ShowDetails extends AppCompatActivity {
     private EditText title;
     private EditText description;
     private TextView date;
-    private TextView latitude;
-    private TextView longitude;
+    private TextView length;
+    private TextView width;
     private ImageElement element;
     private ImageView imageView;
     private  String reportDate;
@@ -123,8 +123,8 @@ public class ShowDetails extends AppCompatActivity {
         title= (EditText) findViewById(R.id.title);
         description= (EditText) findViewById(R.id.details);
         date = (TextView) findViewById(R.id.date);
-        latitude =(TextView) findViewById(R.id.latitude);
-        longitude = (TextView) findViewById(R.id.longitude);
+        length =(TextView) findViewById(R.id.length);
+        width = (TextView) findViewById(R.id.width);
 
 
         Bundle b = getIntent().getExtras();
@@ -278,8 +278,25 @@ public class ShowDetails extends AppCompatActivity {
                     }
                 }
                 else {
-                    Log.e("adding image", "onClick: ");
-                    MainActivity.imagesToBeSendWhenOnline.add(element);
+
+                    if (titleT.isEmpty() && descriptionT.isEmpty()) {
+                        Context context = getApplicationContext();
+                        CharSequence text = "Title and description cannot be empty!";
+                        int duration = Toast.LENGTH_SHORT;
+
+                        Toast toast = Toast.makeText(context, text, duration);
+                        toast.show();
+                    }
+
+                    else {
+                        Log.e("adding image", "onClick: ");
+                        Context context = getApplicationContext();
+                        CharSequence text = "No Internet Available, Image will be sent when internet connection is available";
+                        int duration = Toast.LENGTH_SHORT;
+                        Toast toast = Toast.makeText(context, text, duration);
+                        toast.show();
+                        MainActivity.imagesToBeSendWhenOnline.add(element);
+                    }
                 }
             }
         });
@@ -328,8 +345,8 @@ public class ShowDetails extends AppCompatActivity {
         @Override
         protected void onPostExecute(Wrapper w) {
 
-            latitude.setText(String.valueOf(w.getLocation().getLatitude()));
-            longitude.setText(String.valueOf(w.getLocation().getLongitude()));
+            length.setText(String.valueOf(w.getImage().getImageLength()));
+            width.setText(String.valueOf(w.getImage().getImageWidth()));
             title.setText(w.getImage().getTitle());
             description.setText(w.getImage().getDescription());
             date.setText(w.getImage().getDate());
@@ -397,6 +414,9 @@ public class ShowDetails extends AppCompatActivity {
                 jsonObject.put("description",jsonData.getDescription());
                 jsonObject.put("latitude",jsonData.getLatitude());
                 jsonObject.put("longitude",jsonData.getLongitude());
+                jsonObject.put("date",jsonData.getDate());
+                jsonObject.put("image length",jsonData.getImageLength());
+                jsonObject.put("image width",jsonData.getImageWidth());
                 jsonObject.put("image path",jsonData.file.getAbsolutePath());
 
                 multipartRequest = new MultipartRequest(getApplicationContext());

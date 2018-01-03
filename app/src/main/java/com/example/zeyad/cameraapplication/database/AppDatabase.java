@@ -12,7 +12,7 @@ import android.arch.persistence.room.Database;
 import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.migration.Migration;
 
-@Database(entities = {Image.class, Location.class}, version = 5)
+@Database(entities = {Image.class, Location.class}, version = 6)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract ImageDao imageDao();
@@ -20,12 +20,14 @@ public abstract class AppDatabase extends RoomDatabase {
 
 
 
-    public static final Migration MIGRATION_4_5 = new Migration(4, 5) {
+    public static final Migration MIGRATION_5_6 = new Migration(5, 6) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
 
             database.execSQL("ALTER TABLE Image "
-                    + " ADD COLUMN date TEXT");
+                    + " ADD COLUMN imageLength TEXT");
+            database.execSQL("ALTER TABLE Image "
+                    + " ADD COLUMN imageWidth TEXT");
         }
     };
 }

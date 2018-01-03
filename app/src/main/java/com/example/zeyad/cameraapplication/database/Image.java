@@ -35,6 +35,8 @@ public class Image {
     public String description;
     public String date;
     public String imagepath;
+    private String imageLength;
+    private String imageWidth;
     @ColumnInfo(name = "location_id")
     public int locationId;
 
@@ -43,27 +45,25 @@ public class Image {
     @Ignore
     Bitmap thumbnail;
 
-    public Image(int id, String title, String description,String date,String imagepath, int locationId) {
+    public Image(int id, String title, String description,String date,String imagepath,String imageLength,String imageWidth, int locationId) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.date = date;
         this.imagepath=imagepath;
+        this.imageLength=imageLength;
+        this.imageWidth=imageWidth;
         this.locationId = locationId;
 
     }
 
-    public Image(Context context, String title, String description,String date,String imagepath, int locationId) {
+    public Image(Context context, String title, String description,String date,String imagepath,String imageLength,String imageWidth, int locationId) {
         this.title= title;
         this.description= description;
         this.date=date;
         this.imagepath=imagepath;
-       // Drawable vectorDrawable = ResourcesCompat.getDrawable(context.getResources(), drawable, null);
-       // this.picture= ((BitmapDrawable) vectorDrawable).getBitmap();
-        // create the thumbnail yourself!
-        //
-
-        // assign the foreign ley id
+        this.imageLength=imageLength;
+        this.imageWidth=imageWidth;
         this.locationId=locationId;
         this.id=idCounter++;
 
@@ -123,4 +123,12 @@ public class Image {
     public void setThumbnail(Bitmap thumbnail) {
         this.thumbnail = thumbnail;
     }
+
+    public String getImageLength(){return imageLength;}
+
+    public void setImageLength(String imageLength){this.imageLength=imageLength;}
+
+    public String getImageWidth(){return imageWidth;}
+
+    public void setImageWidth(String imageWidth){this.imageWidth=imageWidth;}
 }

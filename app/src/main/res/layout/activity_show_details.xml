@@ -63,13 +63,13 @@
                     android:layout_height="wrap_content" />
 
                 <TextView
-                    android:id="@+id/latitude"
+                    android:id="@+id/length"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignBottom="@+id/date"/>
 
                 <TextView
-                    android:id="@+id/longitude"
+                    android:id="@+id/width"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignBottom="@+id/latitude"/>

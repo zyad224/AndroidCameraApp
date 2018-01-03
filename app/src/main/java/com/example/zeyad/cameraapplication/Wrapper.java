@@ -16,6 +16,7 @@ public class Wrapper {
    private LatLng locOnMap;
 
 
+
    public Wrapper (Image image, Location location){
        this.image=image;
        this.location=location;

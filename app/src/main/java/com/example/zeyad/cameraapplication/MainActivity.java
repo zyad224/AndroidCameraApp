@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ExifInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -167,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
         if (db==null)
             db = Room.databaseBuilder(getApplicationContext(),
                 AppDatabase.class, "images_database")
-                .addMigrations( AppDatabase.MIGRATION_4_5)
+                .addMigrations( AppDatabase.MIGRATION_5_6)
                 .build();
 
 
@@ -365,22 +366,66 @@ public class MainActivity extends AppCompatActivity {
      */
     private List<ImageElement> getImageElements(List<File> returnedPhotos) {
         List<ImageElement> imageElementList= new ArrayList<>();
+        List<String> exefInfo=new ArrayList<>();
+        float []latLong = new float[2];
+
+        SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        // Get the date today using Calendar object.
+        Date today = Calendar.getInstance().getTime();
+        // Using DateFormat format method we can create a string
+        // representation of a date with the defined format.
+        String reportDate = df.format(today);
 
         for (File file: returnedPhotos){
-
             ImageElement element= new ImageElement(file);
             // take the image
             bitmap = BitmapFactory.decodeFile(element.file.getAbsolutePath());
+            try{
 
-            if(flag){
-                element.setLatitude(latitude);
-                element.setLongitude(longitude);
+                ExifInterface exif = new ExifInterface(element.file.getAbsolutePath());
+                latLong=new float[2];
+                exefInfo=ShowExifInfo(exif);
+                exif.getLatLong(latLong);
+            }catch(IOException e){
+                e.printStackTrace();
+                Toast.makeText(this, "Error!", Toast.LENGTH_LONG).show();
+
             }
+           if(flag){
+               element.setLatitude(latitude);
+               element.setLongitude(longitude);
+               element.setDate("DateTime : "+reportDate);
+               element.setImageLength((exefInfo.get(1)));
+               element.setImageWidth((exefInfo.get(2)));
+               Log.e("in 3", "getImageElements: "+ exefInfo.get(0));
+               Log.e("in 3", "getImageElements: "+(exefInfo.get(1)) );
+               Log.e("in 3", "getImageElements: "+(exefInfo.get(2)) );
+               //Log.e("in 3", "getImageElements: "+(exefInfo.get(1)) );
+            }
+            else{
+
+
+                Log.e("in 2", "getImageElements: " );
+                element.setDate(exefInfo.get(0));
+                element.setLatitude(latLong[0]);
+                element.setLongitude(latLong[1]);
+                element.setImageLength((exefInfo.get(1)));
+                element.setImageWidth((exefInfo.get(2)));
+
+                Log.e("in 2", "getImageElements: " +exefInfo.get(0));
+                Log.e("in 2", "getImageElements: " +(exefInfo.get(1)));
+                Log.e("in 2", "getImageElements: " +(exefInfo.get(2)));
+                Log.e("in 2", "getImageElements: " +(latLong[0]));
+                Log.e("in 2", "getImageElements: " +(latLong[1]));
+
+
+
+            }
+
             element.setImagePath(saveToInternalStorage(bitmap));
             new InsertIntoDatabaseTask().execute(element);
             new Thread(new loadImagesFromStorage()).start();
             Log.i("MainActivity", "imgpath: " + element.getImagePath());
-
             imageElementList.add(element);
 
 
@@ -389,6 +434,23 @@ public class MainActivity extends AppCompatActivity {
         flag=false;
 
         return imageElementList;
+    }
+
+
+    private List<String> ShowExifInfo(ExifInterface exif)
+    {
+        List<String>exefInfo=new ArrayList<>();
+        String myAttribute="Exif information ---\n";
+        exefInfo.add( getTagString(ExifInterface.TAG_DATETIME, exif));
+        exefInfo.add( getTagString(ExifInterface.TAG_IMAGE_LENGTH, exif));
+        exefInfo.add( getTagString(ExifInterface.TAG_IMAGE_WIDTH, exif));
+
+        return exefInfo;
+    }
+
+    private String getTagString(String tag, ExifInterface exif)
+    {
+        return(tag + " : " + exif.getAttribute(tag) + "\n");
     }
 
     ///////// Taking Images from Database -----------------
@@ -464,17 +526,12 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(ImageElement... img) {
-            SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-            // Get the date today using Calendar object.
-            Date today = Calendar.getInstance().getTime();
-            // Using DateFormat format method we can create a string
-            // representation of a date with the defined format.
-            String reportDate = df.format(today);
+
             ///////////////////// GPS
              ImageElement e=img[0];
              Location location = new Location(e.getLatitude(), e.getLongitude(), 20.0);
              db.imageDao().insertLocation(location);
-             Image image=new Image(getApplicationContext(),e.getTitle(),e.getDescription(),reportDate,e.getImagePath(),location.getId());
+             Image image=new Image(getApplicationContext(),e.getTitle(),e.getDescription(),e.getDate(),e.getImagePath(),e.getImageLength(),e.getImageWidth(),location.getId());
              db.imageDao().insertImage(image);
 
             List<Image> imageList = db.imageDao().loadImages();
@@ -568,12 +625,15 @@ public class MainActivity extends AppCompatActivity {
             try{
 
                 for(ImageElement e:jsonData) {
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("title", e.getTitle());
-                    jsonObject.put("description", e.getDescription());
-                    jsonObject.put("latitude", e.getLatitude());
-                    jsonObject.put("longitude", e.getLongitude());
-                    jsonObject.put("image path", e.file.getAbsolutePath());
+                    JSONObject jsonObject=new JSONObject();
+                    jsonObject.put("title",e.getTitle());
+                    jsonObject.put("description",e.getDescription());
+                    jsonObject.put("latitude",e.getLatitude());
+                    jsonObject.put("longitude",e.getLongitude());
+                    jsonObject.put("date",e.getDate());
+                    jsonObject.put("image length",e.getImageLength());
+                    jsonObject.put("image width",e.getImageWidth());
+                    jsonObject.put("image path",e.file.getAbsolutePath());
 
                     multipartRequest = new MultipartRequest(getApplicationContext());
                     multipartRequest.addFile("image", e.file.getAbsolutePath(), jsonObject.toString());
