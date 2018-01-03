@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,6 +54,7 @@ public class MapActivity extends AppCompatActivity  implements GoogleMap.OnMarke
     private double longitude;
     private double latitude;
     public Marker m;
+    Bitmap myBit;
     HashMap<String, String> hashMap = new HashMap<String, String>();
 
 
@@ -129,11 +131,16 @@ public class MapActivity extends AppCompatActivity  implements GoogleMap.OnMarke
             Bitmap myBitmap;
             for(Wrapper wo: w) {
 
-               m=   mMap.addMarker(new MarkerOptions().position(wo.getPositionOnMap()).title(wo.getImage().getTitle())
-                       .icon(BitmapDescriptorFactory.fromBitmap(myBitmap = MyAdapter.decodeSampledBitmapFromResource
-                               (wo.getImage().getImagepath(), 50, 50))));
+                myBit = MyAdapter.decodeSampledBitmapFromResource(wo.getImage().getImagepath(), 50, 50);
+
+                m=   mMap.addMarker(new MarkerOptions().position(wo.getPositionOnMap()).title(wo.getImage().getTitle())
+
+                        .snippet(wo.getImage().getDescription())
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
+                );
                hashMap.put((m.getId()),wo.getImage().getImagepath());
-               addListenerstoMarkers();
+
+               //addListenerstoMarkers();
             }
 
             Toast.makeText(getBaseContext(), "Locations Updated on Map", Toast.LENGTH_LONG).show();
@@ -147,10 +154,33 @@ public class MapActivity extends AppCompatActivity  implements GoogleMap.OnMarke
         public void onMapReady(GoogleMap googleMap) {
             mMap = googleMap;
             mMap.getUiSettings().setZoomControlsEnabled(true);
-            CameraUpdate zoom=CameraUpdateFactory.zoomTo(0);
+            CameraUpdate zoom = CameraUpdateFactory.zoomTo(0);
             mMap.animateCamera(zoom);
 
+            if (mMap != null) {
 
+                mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                    @Override
+                    public View getInfoWindow(Marker marker) {
+                        return null;
+                    }
+
+                    @Override
+                    public View getInfoContents(Marker marker) {
+
+                        View v = getLayoutInflater().inflate(R.layout.info_window, null);
+                        TextView title = (TextView) v.findViewById(R.id.title_map);
+                        TextView description = (TextView) v.findViewById(R.id.description_map);
+                        ImageView imageView = (ImageView) v.findViewById(R.id.imageMap);
+
+                        LatLng ll = marker.getPosition();
+                        title.setText(marker.getTitle());
+                        description.setText(marker.getSnippet());
+                        imageView.setImageBitmap(myBit);
+                        return v;
+                    }
+                });
+            }
         }
     };
 

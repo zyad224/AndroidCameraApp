@@ -10,7 +10,7 @@
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appBarLayout2"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <LinearLayout
@@ -121,9 +121,11 @@
         android:id="@+id/uploadServer"
         android:layout_width="66dp"
         android:layout_height="63dp"
-        android:layout_gravity="bottom|left"
+        android:layout_gravity="top|center_horizontal"
         app:fabSize="normal"
         android:clickable="true"
+        app:layout_anchor="@+id/appBarLayout2"
+        app:layout_anchorGravity="bottom|left"
         app:backgroundTint="@android:color/holo_red_dark"
         app:srcCompat="@android:drawable/ic_menu_upload"
         tools:layout_editor_absoluteX="264dp"
