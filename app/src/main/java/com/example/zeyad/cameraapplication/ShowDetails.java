@@ -1,11 +1,14 @@
 package com.example.zeyad.cameraapplication;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
@@ -37,9 +40,20 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -67,6 +81,7 @@ public class ShowDetails extends AppCompatActivity {
     private ImageButton edit;
     private ImageButton delete;
     public  final static String SER_KEY = "serial";
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,6 +199,9 @@ public class ShowDetails extends AppCompatActivity {
                         date.setText(reportDate);
                         element.setDate(date.getText().toString());
                         new UpdateImageDetails().execute(element);
+
+
+
                         finish();
                         }
 
@@ -243,12 +261,27 @@ public class ShowDetails extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                Intent intent= new Intent(ShowDetails.this, ServerActivity.class);
-                Bundle b=new Bundle();
-                b.putSerializable(SER_KEY,element);
-                intent.putExtras(b);
+                String titleT=title.getText().toString();
+                String descriptionT =description.getText().toString();
 
-                startActivity(intent);
+                if(isConnected()) {
+                    if (titleT.isEmpty() && descriptionT.isEmpty()) {
+                        Context context = getApplicationContext();
+                        CharSequence text = "Title and description cannot be empty!";
+                        int duration = Toast.LENGTH_SHORT;
+
+                        Toast toast = Toast.makeText(context, text, duration);
+                        toast.show();
+                    }
+                    else {
+                        new SendToServer().execute(element);
+                        finish();
+                    }
+                }
+                else {
+                    Log.e("adding image", "onClick: ");
+                    MainActivity.imagesToBeSendWhenOnline.add(element);
+                }
             }
         });
     }
@@ -345,4 +378,54 @@ public class ShowDetails extends AppCompatActivity {
         description.setText("Description");
 
     }
+
+    private  class SendToServer extends AsyncTask<ImageElement, Void, String>{
+
+        @Override
+        protected String doInBackground(ImageElement... img) {
+
+
+            String url="http://wesenseit-vm1.shef.ac.uk:8091/uploadImages";
+            String serverResult="";
+            MultipartRequest multipartRequest;
+            ImageElement jsonData=img[0];
+
+            try{
+
+                JSONObject jsonObject=new JSONObject();
+                jsonObject.put("title",jsonData.getTitle());
+                jsonObject.put("description",jsonData.getDescription());
+                jsonObject.put("latitude",jsonData.getLatitude());
+                jsonObject.put("longitude",jsonData.getLongitude());
+                jsonObject.put("image path",jsonData.file.getAbsolutePath());
+
+                multipartRequest = new MultipartRequest(getApplicationContext());
+                multipartRequest.addFile("image",jsonData.file.getAbsolutePath(),jsonObject.toString());
+                serverResult=multipartRequest.execute(url);
+
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+
+            return serverResult;
+        }
+
+        @Override
+        protected void onPostExecute(String serverResult) {
+            Log.i("serverResult", "Result is:"+serverResult);
+            Toast.makeText(getBaseContext(), "Image Sent to server!", Toast.LENGTH_LONG).show();
+        }
+
+
+    }
+    public boolean isConnected(){
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected())
+            return true;
+        else
+            return false;
+    }
+
+
 }

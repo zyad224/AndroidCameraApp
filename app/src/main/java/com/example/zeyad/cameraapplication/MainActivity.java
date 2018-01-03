@@ -12,6 +12,8 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -49,6 +51,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.common.base.Converter;
 
+import org.json.JSONObject;
+
 import pl.aprilapps.easyphotopicker.DefaultCallback;
 import pl.aprilapps.easyphotopicker.EasyImage;
 
@@ -79,7 +83,8 @@ public class MainActivity extends AppCompatActivity {
     static boolean flag=true;
     private ImageElement element;
     private ProgressBar progressBar;
-    Integer count =1;
+    private int progressStatus =0;
+    public static List<ImageElement> imagesToBeSendWhenOnline=new ArrayList<>();
 
 
    // private String imagePath;
@@ -106,9 +111,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        progressBar.setMax(10);
-        progressBar.setVisibility(View.VISIBLE);
-        progressBar.setProgress(0);
+
 
         mRecyclerView = (RecyclerView) findViewById(R.id.grid_recycler_view);
         int numberOfColumns = 4;
@@ -170,6 +173,26 @@ public class MainActivity extends AppCompatActivity {
 
         new Thread(new loadImagesFromStorage()).start();
 
+        if(isConnected()){
+            Log.e("inside connected", "onCreate: " );
+            if(!imagesToBeSendWhenOnline.isEmpty()){
+                Log.e("offline images count", "onCreate:"+imagesToBeSendWhenOnline.size());
+
+                progressBar.setVisibility(View.VISIBLE);
+                for(ImageElement e: imagesToBeSendWhenOnline) {
+                    new SendToServer().execute(e);
+
+                }
+
+
+                imagesToBeSendWhenOnline.clear();
+                progressBar.setVisibility(View.GONE);
+
+            }
+        }
+
+
+
 
     }
 
@@ -205,12 +228,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+
     private class loadImagesFromStorage implements Runnable{
 
         @Override
         public void run() {
             try {
 
+                progressBar.setVisibility(View.VISIBLE);
                 myPictureList.clear();
                 mAdapter.notifyDataSetChanged();
                 File fileDir = new File(directory.toString());
@@ -523,6 +549,55 @@ public class MainActivity extends AppCompatActivity {
         // we need to convert uri when we want back it 
         return mypath.getAbsolutePath();
 
+    }
+
+    private  class SendToServer extends AsyncTask<ImageElement, Void, String>{
+
+        @Override
+        protected String doInBackground(ImageElement... img) {
+
+
+            String url="http://wesenseit-vm1.shef.ac.uk:8091/uploadImages";
+            String serverResult="";
+            MultipartRequest multipartRequest;
+            ImageElement jsonData=img[0];
+
+            try{
+
+                JSONObject jsonObject=new JSONObject();
+                jsonObject.put("title",jsonData.getTitle());
+                jsonObject.put("description",jsonData.getDescription());
+                jsonObject.put("latitude",jsonData.getLatitude());
+                jsonObject.put("longitude",jsonData.getLongitude());
+                jsonObject.put("image path",jsonData.file.getAbsolutePath());
+
+                multipartRequest = new MultipartRequest(getApplicationContext());
+                multipartRequest.addFile("image",jsonData.file.getAbsolutePath(),jsonObject.toString());
+                serverResult=multipartRequest.execute(url);
+
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+
+            return serverResult;
+        }
+
+        @Override
+        protected void onPostExecute(String serverResult) {
+            Log.i("serverResult", "Result is:"+serverResult);
+            Toast.makeText(getBaseContext(), "Images Have Been Sent to the Server!", Toast.LENGTH_LONG).show();
+        }
+
+
+    }
+
+    public boolean isConnected(){
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected())
+            return true;
+        else
+            return false;
     }
 
 }

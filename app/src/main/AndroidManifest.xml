@@ -50,10 +50,6 @@
         <activity
             android:name=".ShowDetails"
             android:parentActivityName=".ShowImageActivity" />
-        <activity
-            android:name=".ServerActivity"
-            android:label="@string/title_activity_server"
-            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".ImageFromMap" />
         <activity android:name=".MainActivity"></activity>
     </application>

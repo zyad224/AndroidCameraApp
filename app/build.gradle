@@ -49,4 +49,5 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.+'
     compile 'com.android.support:design:26.+'
     compile group: 'org.apache.httpcomponents', name: 'httpclient-android', version: '4.3.5.1'
+    compile 'com.squareup.okhttp3:okhttp:3.7.0'
 }
