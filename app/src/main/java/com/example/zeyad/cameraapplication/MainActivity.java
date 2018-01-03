@@ -179,12 +179,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("offline images count", "onCreate:"+imagesToBeSendWhenOnline.size());
 
                 progressBar.setVisibility(View.VISIBLE);
-                for(ImageElement e: imagesToBeSendWhenOnline) {
-                    new SendToServer().execute(e);
-
-                }
-
-
+                new SendToServer().execute(imagesToBeSendWhenOnline);
                 imagesToBeSendWhenOnline.clear();
                 progressBar.setVisibility(View.GONE);
 
@@ -551,40 +546,44 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private  class SendToServer extends AsyncTask<ImageElement, Void, String>{
+    private  class SendToServer extends AsyncTask<List<ImageElement>, Void, List<String> >{
 
         @Override
-        protected String doInBackground(ImageElement... img) {
+        protected List<String> doInBackground(List<ImageElement>... img) {
 
 
             String url="http://wesenseit-vm1.shef.ac.uk:8091/uploadImages";
             String serverResult="";
+            List<String>serverResults=new ArrayList<>();
             MultipartRequest multipartRequest;
-            ImageElement jsonData=img[0];
+            List<ImageElement> jsonData=img[0];
 
             try{
 
-                JSONObject jsonObject=new JSONObject();
-                jsonObject.put("title",jsonData.getTitle());
-                jsonObject.put("description",jsonData.getDescription());
-                jsonObject.put("latitude",jsonData.getLatitude());
-                jsonObject.put("longitude",jsonData.getLongitude());
-                jsonObject.put("image path",jsonData.file.getAbsolutePath());
+                for(ImageElement e:jsonData) {
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("title", e.getTitle());
+                    jsonObject.put("description", e.getDescription());
+                    jsonObject.put("latitude", e.getLatitude());
+                    jsonObject.put("longitude", e.getLongitude());
+                    jsonObject.put("image path", e.file.getAbsolutePath());
 
-                multipartRequest = new MultipartRequest(getApplicationContext());
-                multipartRequest.addFile("image",jsonData.file.getAbsolutePath(),jsonObject.toString());
-                serverResult=multipartRequest.execute(url);
+                    multipartRequest = new MultipartRequest(getApplicationContext());
+                    multipartRequest.addFile("image", e.file.getAbsolutePath(), jsonObject.toString());
+                    serverResult = multipartRequest.execute(url);
+                    serverResults.add(serverResult);
+                }
 
             }catch(Exception e){
                 e.printStackTrace();
             }
 
-            return serverResult;
+            return serverResults;
         }
 
         @Override
-        protected void onPostExecute(String serverResult) {
-            Log.i("serverResult", "Result is:"+serverResult);
+        protected void onPostExecute(List<String> serverResults) {
+            Log.i("serverResult", "Result is:"+serverResults);
             Toast.makeText(getBaseContext(), "Images Have Been Sent to the Server!", Toast.LENGTH_LONG).show();
         }
 
