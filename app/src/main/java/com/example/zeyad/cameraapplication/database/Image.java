@@ -35,8 +35,9 @@ public class Image {
     public String description;
     public String date;
     public String imagepath;
-    private String imageLength;
-    private String imageWidth;
+    public String imageLength;
+    public String imageWidth;
+    public String offline;
     @ColumnInfo(name = "location_id")
     public int locationId;
 
@@ -45,7 +46,8 @@ public class Image {
     @Ignore
     Bitmap thumbnail;
 
-    public Image(int id, String title, String description,String date,String imagepath,String imageLength,String imageWidth, int locationId) {
+    public Image(int id, String title, String description,String date,
+                 String imagepath,String imageLength,String imageWidth, int locationId) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -57,13 +59,15 @@ public class Image {
 
     }
 
-    public Image(Context context, String title, String description,String date,String imagepath,String imageLength,String imageWidth, int locationId) {
+    public Image(Context context, String title, String description,String date,
+                 String imagepath,String imageLength,String imageWidth,String offline,int locationId) {
         this.title= title;
         this.description= description;
         this.date=date;
         this.imagepath=imagepath;
         this.imageLength=imageLength;
         this.imageWidth=imageWidth;
+        this.offline=offline;
         this.locationId=locationId;
         this.id=idCounter++;
 
@@ -83,7 +87,6 @@ public class Image {
     public String getTitle() {
         return title;
     }
-
     public void setTitle(String title) {
         this.title = title;
     }

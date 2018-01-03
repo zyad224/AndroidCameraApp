@@ -295,13 +295,34 @@ public class ShowDetails extends AppCompatActivity {
                         int duration = Toast.LENGTH_SHORT;
                         Toast toast = Toast.makeText(context, text, duration);
                         toast.show();
-                        MainActivity.imagesToBeSendWhenOnline.add(element);
+
+                        new UpdateImageUploadingMode().execute(element);
+
+                       // MainActivity.imagesToBeSendWhenOnline.add(element);
                     }
                 }
             }
         });
     }
 
+
+    private class UpdateImageUploadingMode extends AsyncTask<ImageElement, Void, Void> {
+
+        @Override
+        protected Void doInBackground(ImageElement... img) {
+
+
+            ImageElement e= img[0];
+            db.imageDao().updateImageOffline(element.file.getAbsolutePath(),"true");
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            Toast.makeText(getBaseContext(), "Image mode is update", Toast.LENGTH_LONG).show();
+
+        }
+    }
     /////////// for giving back the position
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

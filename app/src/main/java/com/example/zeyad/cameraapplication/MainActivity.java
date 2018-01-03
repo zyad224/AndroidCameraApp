@@ -86,7 +86,6 @@ public class MainActivity extends AppCompatActivity {
     private ImageElement element;
     private ProgressBar progressBar;
     private int progressStatus =0;
-    public static List<ImageElement> imagesToBeSendWhenOnline=new ArrayList<>();
 
 
    // private String imagePath;
@@ -168,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
         if (db==null)
             db = Room.databaseBuilder(getApplicationContext(),
                 AppDatabase.class, "images_database")
-                .addMigrations( AppDatabase.MIGRATION_5_6)
+                .addMigrations( AppDatabase.MIGRATION_12_13)
                 .build();
 
 
@@ -176,16 +175,12 @@ public class MainActivity extends AppCompatActivity {
         new Thread(new loadImagesFromStorage()).start();
 
         if(isConnected()){
-            Log.e("inside connected", "onCreate: " );
-            if(!imagesToBeSendWhenOnline.isEmpty()){
-                Log.e("offline images count", "onCreate:"+imagesToBeSendWhenOnline.size());
 
+                Log.e("inside connected", "onCreate: " );
                 progressBar.setVisibility(View.VISIBLE);
-                new SendToServer().execute(imagesToBeSendWhenOnline);
-                imagesToBeSendWhenOnline.clear();
+                new SendToServer().execute();
                 progressBar.setVisibility(View.GONE);
 
-            }
         }
 
 
@@ -531,7 +526,8 @@ public class MainActivity extends AppCompatActivity {
              ImageElement e=img[0];
              Location location = new Location(e.getLatitude(), e.getLongitude(), 20.0);
              db.imageDao().insertLocation(location);
-             Image image=new Image(getApplicationContext(),e.getTitle(),e.getDescription(),e.getDate(),e.getImagePath(),e.getImageLength(),e.getImageWidth(),location.getId());
+             Image image=new Image(getApplicationContext(),e.getTitle(),
+                     e.getDescription(),e.getDate(),e.getImagePath(),e.getImageLength(),e.getImageWidth(),"false",location.getId());
              db.imageDao().insertImage(image);
 
             List<Image> imageList = db.imageDao().loadImages();
@@ -610,40 +606,63 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private  class SendToServer extends AsyncTask<List<ImageElement>, Void, List<String> >{
+    private class UpdateImageUploadingMode extends AsyncTask<List<Image>, Void, Void> {
 
         @Override
-        protected List<String> doInBackground(List<ImageElement>... img) {
+        protected Void doInBackground(List<Image>... img) {
+
+
+            Log.e("update offline after senidng to server", "doInBackground: ");
+            List<Image> e= img[0];
+            for(Image ee:e)
+                 db.imageDao().updateImageOffline(ee.getImagepath(),"false");
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            Toast.makeText(getBaseContext(), "Image mode is updated again", Toast.LENGTH_LONG).show();
+
+        }
+    }
+    private  class SendToServer extends AsyncTask<Void, Void, List<String>>{
+
+        @Override
+        protected List<String> doInBackground(Void... voids) {
 
 
             String url="http://wesenseit-vm1.shef.ac.uk:8091/uploadImages";
             String serverResult="";
             List<String>serverResults=new ArrayList<>();
             MultipartRequest multipartRequest;
-            List<ImageElement> jsonData=img[0];
+            List<Image> offlineImages= db.imageDao().loadOfflineImages("true");
 
-            try{
+            if(!offlineImages.isEmpty()) {
+                try {
+                    Log.e("in", "doInBackground: " );
+                    for (Image e : offlineImages) {
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("title", e.getTitle());
+                        jsonObject.put("description", e.getDescription());
+                        jsonObject.put("latitude", db.imageDao().findLocationById(e.getLocationId()).getLatitude());
+                        jsonObject.put("longitude", db.imageDao().findLocationById(e.getLocationId()).getLongitude());
+                        jsonObject.put("date", e.getDate());
+                        jsonObject.put("image length", e.getImageLength());
+                        jsonObject.put("image width", e.getImageWidth());
+                        jsonObject.put("image path", e.imagepath);
 
-                for(ImageElement e:jsonData) {
-                    JSONObject jsonObject=new JSONObject();
-                    jsonObject.put("title",e.getTitle());
-                    jsonObject.put("description",e.getDescription());
-                    jsonObject.put("latitude",e.getLatitude());
-                    jsonObject.put("longitude",e.getLongitude());
-                    jsonObject.put("date",e.getDate());
-                    jsonObject.put("image length",e.getImageLength());
-                    jsonObject.put("image width",e.getImageWidth());
-                    jsonObject.put("image path",e.file.getAbsolutePath());
+                        multipartRequest = new MultipartRequest(getApplicationContext());
+                        multipartRequest.addFile("image", e.imagepath, jsonObject.toString());
+                        serverResult = multipartRequest.execute(url);
+                        serverResults.add(serverResult);
+                    }
 
-                    multipartRequest = new MultipartRequest(getApplicationContext());
-                    multipartRequest.addFile("image", e.file.getAbsolutePath(), jsonObject.toString());
-                    serverResult = multipartRequest.execute(url);
-                    serverResults.add(serverResult);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-
-            }catch(Exception e){
-                e.printStackTrace();
+                new UpdateImageUploadingMode().execute(offlineImages);
             }
+
 
             return serverResults;
         }

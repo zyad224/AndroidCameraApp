@@ -43,6 +43,11 @@ public interface ImageDao {
     @Query("UPDATE Image SET title=:title, description=:description WHERE imagepath in(:path) ")
     void updateImageDetails(String path, String title, String description);
 
+    @Query("UPDATE Image SET offline=:offline WHERE imagepath in(:path) ")
+    void updateImageOffline(String path,String offline);
+
+    @Query("SELECT * FROM Image WHERE offline=:mode")
+    public List<Image> loadOfflineImages(String mode);
     //// for all pictures
     @Query("SELECT * FROM Image")
     public List<Image> loadImages();
