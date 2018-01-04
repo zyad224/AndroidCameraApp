@@ -135,7 +135,7 @@ public class MapActivity extends AppCompatActivity  implements GoogleMap.OnMarke
 
                 m=   mMap.addMarker(new MarkerOptions().position(wo.getPositionOnMap()).title(wo.getImage().getTitle())
 
-                        .snippet(wo.getImage().getDescription())
+                        .snippet(wo.getImage().getDescription()+"\n"+wo.getImage().getDate()+"\n"+wo.getImage().getImageLength()+","+wo.getImage().getImageWidth())
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
                 );
                hashMap.put((m.getId()),wo.getImage().getImagepath());
