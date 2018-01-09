@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
         android:layout_margin="@dimen/fab_margin"
-        app:backgroundTint="@android:color/holo_orange_dark"
+        app:backgroundTint="@android:color/holo_orange_light"
         app:fabSize="normal"
         app:srcCompat="@android:drawable/ic_menu_gallery" />
     <android.support.design.widget.FloatingActionButton
@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|left"
         android:layout_margin="@dimen/fab_margin"
-        app:backgroundTint="@android:color/holo_green_dark"
+        app:backgroundTint="@android:color/holo_orange_light"
         app:fabSize="normal"
         app:srcCompat="@android:drawable/ic_dialog_map"/>
 
@@ -48,7 +48,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"
         android:layout_margin="@dimen/fab_margin"
-        app:backgroundTint="@android:color/holo_red_dark"
+        app:backgroundTint="@android:color/holo_orange_light"
         app:fabSize="normal"
         app:srcCompat="@android:drawable/ic_menu_camera"/>
 

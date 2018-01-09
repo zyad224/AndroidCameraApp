@@ -21,15 +21,15 @@
 
             <ImageButton
                 android:id="@+id/delete"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
 
                 android:layout_gravity="top|right"
                 android:src="@drawable/rsz_delete" />
 
             <ImageButton
                 android:id="@+id/edit"
-                android:layout_width="32dp"
+                android:layout_width="40dp"
                 android:layout_height="match_parent"
 
                 android:layout_gravity="top|right"
@@ -113,7 +113,7 @@
         app:layout_anchor="@+id/appBarLayout2"
         app:layout_anchorGravity="bottom|right"
         app:srcCompat="@android:drawable/ic_menu_save"
-        app:backgroundTint="@android:color/holo_green_dark"
+        app:backgroundTint="@android:color/holo_orange_light"
         tools:layout_editor_absoluteX="264dp"
         tools:layout_editor_absoluteY="469dp" />
 
@@ -126,7 +126,7 @@
         android:clickable="true"
         app:layout_anchor="@+id/appBarLayout2"
         app:layout_anchorGravity="bottom|left"
-        app:backgroundTint="@android:color/holo_red_dark"
+        app:backgroundTint="@android:color/holo_orange_light"
         app:srcCompat="@android:drawable/ic_menu_upload"
         tools:layout_editor_absoluteX="264dp"
         tools:layout_editor_absoluteY="469dp" />

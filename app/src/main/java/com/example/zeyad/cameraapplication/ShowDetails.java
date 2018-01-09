@@ -16,12 +16,10 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -40,22 +38,10 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -64,7 +50,6 @@ import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
 public class ShowDetails extends AppCompatActivity {
 
-    private RecyclerView.Adapter  mAdapter;
     private EditText title;
     private EditText description;
     private TextView date;
@@ -72,14 +57,15 @@ public class ShowDetails extends AppCompatActivity {
     private TextView width;
     private ImageElement element;
     private ImageView imageView;
+    private Image path;
+    private ImageButton edit;
+    private ImageButton delete;
     private  String reportDate;
     private static GoogleMap mMap;
     private static AppDatabase db;
     private static List<ImageElement> picList ;
     private int position;
-    private Image path;
-    private ImageButton edit;
-    private ImageButton delete;
+
     public  final static String SER_KEY = "serial";
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -109,7 +95,7 @@ public class ShowDetails extends AppCompatActivity {
 
         }
 
-        //getSupportActionBar().setTitle();
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
@@ -117,7 +103,7 @@ public class ShowDetails extends AppCompatActivity {
         // Get the date today using Calendar object.
         Date today = Calendar.getInstance().getTime();
         // Using DateFormat format method we can create a string
-// representation of a date with the defined format.
+        // representation of a date with the defined format.
         reportDate = df.format(today);
 
         title= (EditText) findViewById(R.id.title);
@@ -129,11 +115,9 @@ public class ShowDetails extends AppCompatActivity {
 
         Bundle b = getIntent().getExtras();
         position=-1;
-        //title.setFocusableInTouchMode(true);
-        title.setEnabled(false);
-        //title.setFocusable(false);
-        description.setEnabled(false);
-        //description.setFocusableInTouchMode(true);
+
+        title.setFocusable(false);
+        description.setFocusable(false);
 
         db=MainActivity.getDB();
         picList=MainActivity.getImageList();
@@ -155,7 +139,7 @@ public class ShowDetails extends AppCompatActivity {
                 Log.i("showdetails", "imagePath"+element.file);
 
                 if(element.file.getAbsolutePath()!=null)
-                    new getImageFrmDb_imgPath().execute(element.file.getAbsolutePath());
+                    new getImageFromDb_imgPath().execute(element.file.getAbsolutePath());
 
 
             }
@@ -224,13 +208,9 @@ public class ShowDetails extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 //dismiss the dialog
                                 Context context = getApplicationContext();
-                                new DeleteIntoDatabaseTask().execute(element);
+                                new DeleteFromDatabaseTask().execute(element);
                                 File file =new File(element.file.getAbsolutePath());
-                                /*for(ImageElement e : picList ){
-                                    if(e.getImagePath().equals(element.file.getAbsolutePath()))
-                                        picList.remove(e);
-                                }
-                                mAdapter.notifyDataSetChanged();*/
+
                                 Toast.makeText(getBaseContext(), file.toString(), Toast.LENGTH_LONG).show();
                                 file.delete();
 
@@ -298,7 +278,6 @@ public class ShowDetails extends AppCompatActivity {
 
                         new UpdateImageUploadingMode().execute(element);
 
-                       // MainActivity.imagesToBeSendWhenOnline.add(element);
                     }
                 }
             }
@@ -341,19 +320,10 @@ public class ShowDetails extends AppCompatActivity {
         @Override
         public void onMapReady(GoogleMap googleMap) {
             mMap = googleMap;
-
-            // Add a marker in Sydney and move the camera
-            LatLng sydney = new LatLng(-34, 151);
-            mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-            mMap.getUiSettings().setZoomControlsEnabled(true);
-            CameraUpdate zoom=CameraUpdateFactory.zoomTo(15);
-            mMap.animateCamera(zoom);
-            //new GetAllImage().execute();
         }
     };
 
-    private class getImageFrmDb_imgPath extends AsyncTask<String, Void, Wrapper>{
+    private class getImageFromDb_imgPath extends AsyncTask<String, Void, Wrapper>{
         @Override
         protected Wrapper doInBackground(String... s) {
             String imagePath=s[0];
@@ -391,11 +361,11 @@ public class ShowDetails extends AppCompatActivity {
         }
     }
 
-    private class DeleteIntoDatabaseTask extends AsyncTask<ImageElement, Void, Void> {
+    private class DeleteFromDatabaseTask extends AsyncTask<ImageElement, Void, Void> {
 
         @Override
         protected Void doInBackground(ImageElement... img) {
-            ///////////////////// GPS
+
             ImageElement e=img[0];
             Image image =db.imageDao().findImageByPath(e.file.getAbsolutePath());
             db.imageDao().deleteImage(image);

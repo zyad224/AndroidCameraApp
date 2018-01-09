@@ -74,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
     //////////////////////////////
     private Bitmap bitmap;
     private String picName;
-    private ImageView imageView;
 
     public File directory;
     private static final int MY_ACCESS_FINE_LOCATION = 123;
@@ -83,27 +82,21 @@ public class MainActivity extends AppCompatActivity {
     private double longitude;
     private double latitude;
     static boolean flag=true;
-    private ImageElement element;
     private ProgressBar progressBar;
     private int progressStatus =0;
 
-
-   // private String imagePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Toolbar toolbar = findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
         activity= this;
 
         Log.e(TAG, "onCreate:enter main " );
         ///////////////////////////////////
         // for count just one time to images
         myPictureList = new ArrayList<>();
-
 
         ////////////////////////////////////
 
@@ -121,11 +114,9 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(mAdapter);
 
 
-
         if(!runtime_permission()){
 
         }
-
 
         // required by Android 6.0 +
         checkPermissions(getApplicationContext());
@@ -153,10 +144,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 EasyImage.openCamera(getActivity(), 0);
                 flag=true;
-              //  Intent i = new Intent(getApplicationContext(), GPS_Service.class);
-              //  startService(i);
-
-
             }
         });
         fabMap.setOnClickListener(new View.OnClickListener() {
@@ -170,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
         if (db==null)
             db = Room.databaseBuilder(getApplicationContext(),
                 AppDatabase.class, "images_database")
-                .addMigrations( AppDatabase.MIGRATION_12_13)
+                .addMigrations( AppDatabase.MIGRATION_13_16)
                 .build();
 
 
@@ -185,9 +172,6 @@ public class MainActivity extends AppCompatActivity {
                 progressBar.setVisibility(View.GONE);
 
         }
-
-
-
 
     }
 
@@ -312,13 +296,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_WRITE_EXTERNAL_STORAGE);
                 }
-
             }
-
-
-
-
-
         }
     }
 
@@ -357,7 +335,6 @@ public class MainActivity extends AppCompatActivity {
         new Thread(new loadImagesFromStorage()).start();
 
        mAdapter.notifyDataSetChanged();
-        //mRecyclerView.scrollToPosition(returnedPhotos.size() - 1);
     }
 
     /**
@@ -366,7 +343,7 @@ public class MainActivity extends AppCompatActivity {
      * @return
      */
     private void getImageElements(List<File> returnedPhotos) {
-        List<ImageElement> imageElementList= new ArrayList<>();
+
         List<String> exefInfo=new ArrayList<>();
         float []latLong = new float[2];
 
@@ -434,16 +411,12 @@ public class MainActivity extends AppCompatActivity {
 
             element.setImagePath(saveToInternalStorage(bitmap,pictureName));
             new InsertIntoDatabaseTask().execute(element);
-            //new Thread(new loadImagesFromStorage()).start();
+
             Log.i("MainActivity", "imgpath: " + element.getImagePath());
-           // imageElementList.add(element);
-
-
 
         }
         flag=false;
 
-       // return imageElementList;
     }
 
 
@@ -494,50 +467,11 @@ public class MainActivity extends AppCompatActivity {
     public static AppDatabase getDB(){return db;}
     public static List<ImageElement> getImageList(){return myPictureList;}
 
-    private class AllImageTask extends AsyncTask<Void, Void, List<Image> >{
-        @Override
-        protected List<Image> doInBackground(Void... Voids) {
-
-            //This Part will take the images from db and write in main page
-            List<Image> imageList=new ArrayList<>();
-
-            if(db.imageDao().imageCount()!=0) {
-                imageList = db.imageDao().loadImages();
-                for (Image img : imageList) {
-                    File file = new File(img.getImagepath());
-                    ImageElement imgFromStorage = new ImageElement(file);
-                    myPictureList.add(imgFromStorage);
-                }
-            }
-
-            Log.i("imgCount", "count: " + db.imageDao().imageCount());
-
-            return imageList;
-        }
-
-        @Override
-        protected void onPostExecute(List<Image> imageList) {
-
-            //here you should update the grid
-            if(!imageList.isEmpty()) {
-
-                mAdapter.notifyDataSetChanged();
-
-            }
-
-            progressBar.setVisibility(View.GONE);
-
-
-        }
-
-
-    }
     private class InsertIntoDatabaseTask extends AsyncTask<ImageElement, Void, Void> {
 
         @Override
         protected Void doInBackground(ImageElement... img) {
 
-            ///////////////////// GPS
              ImageElement e=img[0];
              Location location = new Location(e.getLatitude(), e.getLongitude(), 20.0);
              db.imageDao().insertLocation(location);
@@ -547,8 +481,6 @@ public class MainActivity extends AppCompatActivity {
 
             List<Image> imageList = db.imageDao().loadImages();
 
-           // for(Image im:imageList)
-           //     Log.i("MainActivity", "imgs: "+ im.getImagepath() );
             return null;
         }
 
@@ -597,12 +529,7 @@ public class MainActivity extends AppCompatActivity {
             bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, fos);
             fos.flush();
             fos.close();
-            /*Context context = getApplicationContext();
-            CharSequence text = "Hello toast!"+bitmapImage;
-            int duration = Toast.LENGTH_SHORT;
 
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();*/
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -616,8 +543,6 @@ public class MainActivity extends AppCompatActivity {
         CharSequence text = mypath.getAbsolutePath();
         int duration = Toast.LENGTH_SHORT;
 
-       // Toast toast = Toast.makeText(context, text, duration);
-        //toast.show();
 
         // we need to convert uri when we want back it 
         return mypath.getAbsolutePath();
@@ -629,8 +554,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(List<Image>... img) {
 
-
-            //Log.e("update offline after senidng to server", "doInBackground: ");
             List<Image> e= img[0];
             for(Image ee:e)
                  db.imageDao().updateImageOffline(ee.getImagepath(),"false");
@@ -643,10 +566,10 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
-    private  class SendToServer extends AsyncTask<Void, Void, List<String>>{
+    private  class SendToServer extends AsyncTask<Void, Void, Boolean>{
 
         @Override
-        protected List<String> doInBackground(Void... voids) {
+        protected Boolean doInBackground(Void... voids) {
 
 
             String url="http://wesenseit-vm1.shef.ac.uk:8091/uploadImages";
@@ -654,10 +577,12 @@ public class MainActivity extends AppCompatActivity {
             List<String>serverResults=new ArrayList<>();
             MultipartRequest multipartRequest;
             List<Image> offlineImages= db.imageDao().loadOfflineImages("true");
+            Boolean flg=false;
 
             if(!offlineImages.isEmpty()) {
                 try {
                     Log.e("in", "doInBackground: " );
+                    flg=true;
                     for (Image e : offlineImages) {
                         JSONObject jsonObject = new JSONObject();
                         jsonObject.put("title", e.getTitle());
@@ -682,13 +607,14 @@ public class MainActivity extends AppCompatActivity {
             }
 
 
-            return serverResults;
+            return flg;
         }
 
         @Override
-        protected void onPostExecute(List<String> serverResults) {
-            Log.i("serverResult", "Result is:"+serverResults);
-            Toast.makeText(getBaseContext(), "Images Have Been Sent to the Server!", Toast.LENGTH_LONG).show();
+        protected void onPostExecute(Boolean flg) {
+
+            if(flg)
+              Toast.makeText(getBaseContext(), "Images Have Been Sent to the Server!", Toast.LENGTH_LONG).show();
         }
 
 

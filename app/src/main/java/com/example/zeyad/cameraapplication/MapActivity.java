@@ -42,45 +42,14 @@ import java.util.List;
  * Created by sakin on 18.12.2017.
  */
 
-public class MapActivity extends AppCompatActivity  implements GoogleMap.OnMarkerClickListener {
-    private Button mButtonStart;
-    private Button mButtonStop;
+public class MapActivity extends AppCompatActivity   {
+
     private TextView textView;
     private static GoogleMap mMap;
     private static final int MY_ACCESS_FINE_LOCATION = 123;
     private BroadcastReceiver broadcastReceiver; // getting tha data
-    //static MapsActivity activity;
     private static AppDatabase db;
-    private double longitude;
-    private double latitude;
     public Marker m;
-
-    HashMap<String, String> hashMap = new HashMap<String, String>();
-
-
-    /*@Override
-    protected void onResume(){
-        super.onResume();
-        if(broadcastReceiver == null){
-            broadcastReceiver = new BroadcastReceiver(){
-
-                @Override
-                public void onReceive(Context context, Intent intent) {
-
-                    longitude =(double)intent.getExtras().get("Longitude");
-                    latitude = (double)intent.getExtras().get("Latitude");
-                }
-            };
-        }
-        registerReceiver(broadcastReceiver, new IntentFilter("location_update"));
-
-    }
-    protected void onDestroy(){
-        super.onDestroy();
-        if(broadcastReceiver !=null){
-            unregisterReceiver(broadcastReceiver);
-        }
-    }*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,19 +97,15 @@ public class MapActivity extends AppCompatActivity  implements GoogleMap.OnMarke
 
         @Override
         protected void onPostExecute(List<Wrapper> w) {
-            Bitmap myBitmap;
+
             for(Wrapper wo: w) {
-
-
-               //Bitmap myBit = MyAdapter.decodeSampledBitmapFromResource(wo.getImage().getImagepath(), 50, 50);
-               // Log.e("img", "onPostExecute: "+myBit. );
 
                 m=   mMap.addMarker(new MarkerOptions().position(wo.getPositionOnMap()).title(wo.getImage().getImagepath())
 
                         .snippet(wo.getImage().getTitle()+"\n"+wo.getImage().getDescription()+"\n"+wo.getImage().getDate()+"\n"+wo.getImage().getImageLength()+","+wo.getImage().getImageWidth())
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
                 );
-               hashMap.put((m.getId()),wo.getImage().getImagepath());
+
                 if (mMap != null) {
 
                     mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
@@ -153,12 +118,10 @@ public class MapActivity extends AppCompatActivity  implements GoogleMap.OnMarke
                         public View getInfoContents(Marker marker) {
 
                             View v = getLayoutInflater().inflate(R.layout.info_window, null);
-                            //TextView title = (TextView) v.findViewById(R.id.title_map);
                             TextView description = (TextView) v.findViewById(R.id.description_map);
                             ImageView imageView = (ImageView) v.findViewById(R.id.imageMap);
 
                             LatLng ll = marker.getPosition();
-                            //title.setText(marker.getSnippet());
                             description.setText(marker.getSnippet());
                             imageView.setImageBitmap(MyAdapter.decodeSampledBitmapFromResource(marker.getTitle(), 50, 50));
                             return v;
@@ -166,14 +129,10 @@ public class MapActivity extends AppCompatActivity  implements GoogleMap.OnMarke
                     });
                 }
 
-
             }
-
             Toast.makeText(getBaseContext(), "Locations Updated on Map", Toast.LENGTH_LONG).show();
-
         }
     }
-
 
     OnMapReadyCallback onMapReadyCallback = new OnMapReadyCallback() {
         @Override
@@ -186,25 +145,4 @@ public class MapActivity extends AppCompatActivity  implements GoogleMap.OnMarke
 
         }
     };
-
-
-    public void addListenerstoMarkers(){
-
-        mMap.setOnMarkerClickListener(this);
-    }
-    @Override
-    public boolean onMarkerClick(final Marker marker) {
-
-
-       String imagePath=hashMap.get((marker.getId()));
-
-        Intent intent  = new Intent(getApplicationContext(),ImageFromMap.class);
-        intent.putExtra("image",imagePath);
-        startActivity(intent);
-
-        return true;
-    }
-
-
-
 }

@@ -34,7 +34,7 @@
             android:text="Show Details"
             app:layout_anchorGravity="bottom|left"
             android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true" />
+            android:layout_centerHorizontal="true"/>
 
 
     </android.support.design.widget.AppBarLayout>

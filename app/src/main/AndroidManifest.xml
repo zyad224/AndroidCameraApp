@@ -50,7 +50,6 @@
         <activity
             android:name=".ShowDetails"
             android:parentActivityName=".ShowImageActivity" />
-        <activity android:name=".ImageFromMap" />
         <activity android:name=".MainActivity"></activity>
     </application>
 

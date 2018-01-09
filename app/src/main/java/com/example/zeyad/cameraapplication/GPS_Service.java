@@ -20,8 +20,8 @@ import android.util.Log;
 public class GPS_Service extends Service {
     private LocationListener listener;
     private LocationManager locationManager;
-   static  Location myLastLocation;
     boolean locationChanged;
+
     @Nullable
     @Override
     public IBinder onBind(Intent ıntent) {
@@ -30,9 +30,6 @@ public class GPS_Service extends Service {
 
     @SuppressLint("MissingPermission")
     public void onCreate() {
-
-
-
 
         listener = new LocationListener() {
             // transfer the data from this method to main activity
@@ -74,7 +71,6 @@ public class GPS_Service extends Service {
 
         locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         // update location
-
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, listener);
     }
     public void onDestroy(){

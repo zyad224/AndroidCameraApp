@@ -72,7 +72,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.View_Holder> {
     }
 
 
-
     // convenience method for getting data at click position
     ImageElement getItem(int id) {
         return items.get(id);
