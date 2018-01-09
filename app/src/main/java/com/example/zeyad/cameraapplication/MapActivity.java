@@ -54,7 +54,7 @@ public class MapActivity extends AppCompatActivity  implements GoogleMap.OnMarke
     private double longitude;
     private double latitude;
     public Marker m;
-    Bitmap myBit;
+
     HashMap<String, String> hashMap = new HashMap<String, String>();
 
 
@@ -131,16 +131,42 @@ public class MapActivity extends AppCompatActivity  implements GoogleMap.OnMarke
             Bitmap myBitmap;
             for(Wrapper wo: w) {
 
-                myBit = MyAdapter.decodeSampledBitmapFromResource(wo.getImage().getImagepath(), 50, 50);
 
-                m=   mMap.addMarker(new MarkerOptions().position(wo.getPositionOnMap()).title(wo.getImage().getTitle())
+               //Bitmap myBit = MyAdapter.decodeSampledBitmapFromResource(wo.getImage().getImagepath(), 50, 50);
+               // Log.e("img", "onPostExecute: "+myBit. );
 
-                        .snippet(wo.getImage().getDescription()+"\n"+wo.getImage().getDate()+"\n"+wo.getImage().getImageLength()+","+wo.getImage().getImageWidth())
+                m=   mMap.addMarker(new MarkerOptions().position(wo.getPositionOnMap()).title(wo.getImage().getImagepath())
+
+                        .snippet(wo.getImage().getTitle()+"\n"+wo.getImage().getDescription()+"\n"+wo.getImage().getDate()+"\n"+wo.getImage().getImageLength()+","+wo.getImage().getImageWidth())
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
                 );
                hashMap.put((m.getId()),wo.getImage().getImagepath());
+                if (mMap != null) {
 
-               //addListenerstoMarkers();
+                    mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                        @Override
+                        public View getInfoWindow(Marker marker) {
+                            return null;
+                        }
+
+                        @Override
+                        public View getInfoContents(Marker marker) {
+
+                            View v = getLayoutInflater().inflate(R.layout.info_window, null);
+                            //TextView title = (TextView) v.findViewById(R.id.title_map);
+                            TextView description = (TextView) v.findViewById(R.id.description_map);
+                            ImageView imageView = (ImageView) v.findViewById(R.id.imageMap);
+
+                            LatLng ll = marker.getPosition();
+                            //title.setText(marker.getSnippet());
+                            description.setText(marker.getSnippet());
+                            imageView.setImageBitmap(MyAdapter.decodeSampledBitmapFromResource(marker.getTitle(), 50, 50));
+                            return v;
+                        }
+                    });
+                }
+
+
             }
 
             Toast.makeText(getBaseContext(), "Locations Updated on Map", Toast.LENGTH_LONG).show();
@@ -157,30 +183,7 @@ public class MapActivity extends AppCompatActivity  implements GoogleMap.OnMarke
             CameraUpdate zoom = CameraUpdateFactory.zoomTo(0);
             mMap.animateCamera(zoom);
 
-            if (mMap != null) {
 
-                mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-                    @Override
-                    public View getInfoWindow(Marker marker) {
-                        return null;
-                    }
-
-                    @Override
-                    public View getInfoContents(Marker marker) {
-
-                        View v = getLayoutInflater().inflate(R.layout.info_window, null);
-                        TextView title = (TextView) v.findViewById(R.id.title_map);
-                        TextView description = (TextView) v.findViewById(R.id.description_map);
-                        ImageView imageView = (ImageView) v.findViewById(R.id.imageMap);
-
-                        LatLng ll = marker.getPosition();
-                        title.setText(marker.getTitle());
-                        description.setText(marker.getSnippet());
-                        imageView.setImageBitmap(myBit);
-                        return v;
-                    }
-                });
-            }
         }
     };
 

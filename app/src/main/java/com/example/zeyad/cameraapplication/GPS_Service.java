@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 /**
  * Created by sakin on 18.12.2017.
@@ -19,7 +20,8 @@ import android.support.annotation.Nullable;
 public class GPS_Service extends Service {
     private LocationListener listener;
     private LocationManager locationManager;
-
+   static  Location myLastLocation;
+    boolean locationChanged;
     @Nullable
     @Override
     public IBinder onBind(Intent ıntent) {
@@ -28,16 +30,27 @@ public class GPS_Service extends Service {
 
     @SuppressLint("MissingPermission")
     public void onCreate() {
+
+
+
+
         listener = new LocationListener() {
             // transfer the data from this method to main activity
             // broadcast reciever class
+
             @Override
             public void onLocationChanged(Location location) {
                 // intent filter
+                Log.e("s", "onLocationChanged: "+locationChanged );
+                Log.e("s", "onLocationChanged: "+location.getLatitude()+"  "+location.getLongitude());
+
+               // myLastLocation.set(location);
+               // locationChanged=true;
                 Intent i = new Intent("location_update");
                 i.putExtra("Longitude",location.getLongitude());
                 i.putExtra("Latitude",location.getLatitude());
                 sendBroadcast(i);
+
             }
 
             @Override

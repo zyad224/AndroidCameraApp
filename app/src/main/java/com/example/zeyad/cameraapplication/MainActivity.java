@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
         //setSupportActionBar(toolbar);
         activity= this;
 
-
+        Log.e(TAG, "onCreate:enter main " );
         ///////////////////////////////////
         // for count just one time to images
         myPictureList = new ArrayList<>();
@@ -132,6 +132,8 @@ public class MainActivity extends AppCompatActivity {
 
         initEasyImage();
 
+        Intent i = new Intent(getApplicationContext(), GPS_Service.class);
+        startService(i);
 
         FloatingActionButton fabMap = (FloatingActionButton) findViewById(R.id.fab2);
         FloatingActionButton fabGallery = (FloatingActionButton) findViewById(R.id.fab_gallery);
@@ -151,8 +153,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 EasyImage.openCamera(getActivity(), 0);
                 flag=true;
-                Intent i = new Intent(getApplicationContext(), GPS_Service.class);
-                startService(i);
+              //  Intent i = new Intent(getApplicationContext(), GPS_Service.class);
+              //  startService(i);
+
 
             }
         });
@@ -347,11 +350,14 @@ public class MainActivity extends AppCompatActivity {
      * @param returnedPhotos
      */
     private void onPhotosReturned(List<File> returnedPhotos) {
-        myPictureList.addAll(getImageElements(returnedPhotos));
+        getImageElements(returnedPhotos);
         // we tell the adapter that the data is changed and hence the grid needs
         // refreshing
-        mAdapter.notifyDataSetChanged();
-        mRecyclerView.scrollToPosition(returnedPhotos.size() - 1);
+
+        new Thread(new loadImagesFromStorage()).start();
+
+       mAdapter.notifyDataSetChanged();
+        //mRecyclerView.scrollToPosition(returnedPhotos.size() - 1);
     }
 
     /**
@@ -359,7 +365,7 @@ public class MainActivity extends AppCompatActivity {
      * @param returnedPhotos
      * @return
      */
-    private List<ImageElement> getImageElements(List<File> returnedPhotos) {
+    private void getImageElements(List<File> returnedPhotos) {
         List<ImageElement> imageElementList= new ArrayList<>();
         List<String> exefInfo=new ArrayList<>();
         float []latLong = new float[2];
@@ -371,6 +377,8 @@ public class MainActivity extends AppCompatActivity {
         // representation of a date with the defined format.
         String reportDate = df.format(today);
 
+        int counter=0;
+        String pictureName;
         for (File file: returnedPhotos){
             ImageElement element= new ImageElement(file);
             // take the image
@@ -387,6 +395,9 @@ public class MainActivity extends AppCompatActivity {
 
             }
            if(flag){
+               Log.e("long:", "getImageElements: "+longitude );
+               Log.e("latit:", "getImageElements: "+latitude );
+
                element.setLatitude(latitude);
                element.setLongitude(longitude);
                element.setDate("DateTime : "+reportDate);
@@ -396,6 +407,8 @@ public class MainActivity extends AppCompatActivity {
                Log.e("in 3", "getImageElements: "+(exefInfo.get(1)) );
                Log.e("in 3", "getImageElements: "+(exefInfo.get(2)) );
                //Log.e("in 3", "getImageElements: "+(exefInfo.get(1)) );
+             //  counter++;
+               pictureName=getPictureName();
             }
             else{
 
@@ -413,22 +426,24 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("in 2", "getImageElements: " +(latLong[0]));
                 Log.e("in 2", "getImageElements: " +(latLong[1]));
 
+                counter++;
+               pictureName=counter+getPictureName();
 
 
             }
 
-            element.setImagePath(saveToInternalStorage(bitmap));
+            element.setImagePath(saveToInternalStorage(bitmap,pictureName));
             new InsertIntoDatabaseTask().execute(element);
-            new Thread(new loadImagesFromStorage()).start();
+            //new Thread(new loadImagesFromStorage()).start();
             Log.i("MainActivity", "imgpath: " + element.getImagePath());
-            imageElementList.add(element);
+           // imageElementList.add(element);
 
 
 
         }
         flag=false;
 
-        return imageElementList;
+       // return imageElementList;
     }
 
 
@@ -546,6 +561,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume(){
         super.onResume();
+        Log.e("f", "onResume: entered afte close" );
         if(broadcastReceiver == null){
             broadcastReceiver = new BroadcastReceiver(){
 
@@ -554,6 +570,8 @@ public class MainActivity extends AppCompatActivity {
 
                     longitude =(double)intent.getExtras().get("Longitude");
                     latitude = (double)intent.getExtras().get("Latitude");
+                    Log.e("long:", "broadcast: "+longitude );
+                    Log.e("latit:", "broadcast: "+latitude );
                 }
             };
         }
@@ -566,9 +584,9 @@ public class MainActivity extends AppCompatActivity {
             unregisterReceiver(broadcastReceiver);
         }
     }
-    private String saveToInternalStorage(Bitmap bitmapImage){
+    private String saveToInternalStorage(Bitmap bitmapImage, String pictureName){
 
-        picName=getPictureName();
+        picName=pictureName;
         // Create imageDir
         File mypath=new File(directory,picName);
 
@@ -612,7 +630,7 @@ public class MainActivity extends AppCompatActivity {
         protected Void doInBackground(List<Image>... img) {
 
 
-            Log.e("update offline after senidng to server", "doInBackground: ");
+            //Log.e("update offline after senidng to server", "doInBackground: ");
             List<Image> e= img[0];
             for(Image ee:e)
                  db.imageDao().updateImageOffline(ee.getImagepath(),"false");
