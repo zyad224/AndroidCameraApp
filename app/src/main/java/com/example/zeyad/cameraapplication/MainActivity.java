@@ -58,10 +58,23 @@ import org.json.JSONObject;
 import pl.aprilapps.easyphotopicker.DefaultCallback;
 import pl.aprilapps.easyphotopicker.EasyImage;
 
+/**
+ *
+ * MainActivity.java
+ *
+ * This activity is used to display all pictures in the main page of the application
+ * and it includes layout to go essential functions like taking a picture from camera and
+ * phone gallery and also showing all pictures including their details on google map .
+ *
+ *
+ * @author Sakine Yalman, Zeyad Abdelwahab (syalman1@sheffield.ac.uk, zyabdelwahab1@sheffield.ac.uk)
+ * @version 1 10 January 2018
+ *
+ */
 
 public class MainActivity extends AppCompatActivity {
 
-
+    // declarations
     private static final int REQUEST_READ_EXTERNAL_STORAGE = 2987;
     private static final int REQUEST_WRITE_EXTERNAL_STORAGE = 7829;
     private static final String TAG = "MainActivity";
@@ -71,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
     private Activity activity;
     private static AppDatabase db;
     private static boolean databaseLoaded=false;
-    //////////////////////////////
     private Bitmap bitmap;
     private String picName;
 
@@ -86,6 +98,13 @@ public class MainActivity extends AppCompatActivity {
     private int progressStatus =0;
 
 
+    /**
+     *
+     * In onCreate, the main methods are declared like showing pictures, connecting the server and dtabase
+     * and going another activities
+     *
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,12 +113,11 @@ public class MainActivity extends AppCompatActivity {
         activity= this;
 
         Log.e(TAG, "onCreate:enter main " );
-        ///////////////////////////////////
-        // for count just one time to images
+
+        // For list of pictures
         myPictureList = new ArrayList<>();
 
-        ////////////////////////////////////
-
+        // create a directory for saving pictures in it
         ContextWrapper wrapper = new ContextWrapper(getApplicationContext());
         directory = wrapper.getDir("imageDir", Context.MODE_PRIVATE);
 
@@ -123,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
 
         initEasyImage();
 
+        // start GPS Service for getting location
         Intent i = new Intent(getApplicationContext(), GPS_Service.class);
         startService(i);
 
@@ -130,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
         FloatingActionButton fabGallery = (FloatingActionButton) findViewById(R.id.fab_gallery);
         FloatingActionButton fabCamera = (FloatingActionButton) findViewById(R.id.fab_camera);
 
+        // for open gallery and take pictures
         fabGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -139,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // for open camera and take picture
         fabCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -146,6 +167,8 @@ public class MainActivity extends AppCompatActivity {
                 flag=true;
             }
         });
+
+        // for showing pictures in google map
         fabMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -154,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // control of database
         if (db==null)
             db = Room.databaseBuilder(getApplicationContext(),
                 AppDatabase.class, "images_database")
@@ -161,13 +185,15 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
 
-
+        // start the thread for load images in main page in application
         new Thread(new loadImagesFromStorage()).start();
 
+        // check the network connection, if we have
         if(isConnected()){
 
                 Log.e("inside connected", "onCreate: " );
                 progressBar.setVisibility(View.VISIBLE);
+                // execute the server
                 new SendToServer().execute();
                 progressBar.setVisibility(View.GONE);
 
@@ -176,6 +202,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Method that checks runtime permission
+     * @return status of permission checking
+     */
     private boolean runtime_permission(){
         if(Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, Manifest.permission
                 .ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest
@@ -188,6 +218,14 @@ public class MainActivity extends AppCompatActivity {
         return false; // if we do not need permission checking
     }
 
+    /**
+     *
+     * Method that checks permissions for camera
+     *
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode,permissions,grantResults);
         switch (requestCode) {case MY_ACCESS_FINE_LOCATION: {
@@ -208,20 +246,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
+    /**
+     *
+     * Thread that provide load images from internal storage
+     * to main page in application
+     *
+     */
     private class loadImagesFromStorage implements Runnable{
 
         @Override
         public void run() {
             try {
 
+                // give message to user that images are loading
                 progressBar.setVisibility(View.VISIBLE);
                 myPictureList.clear();
                 mAdapter.notifyDataSetChanged();
+                // take the directory of internal storage
                 File fileDir = new File(directory.toString());
                 String[] SavedFiles=  fileDir.list();
 
                 for(String img: SavedFiles){
+                    // add all images into picture list
                     File file = new File(directory.toString()+"/"+img);
                     ImageElement imgFromStorage = new ImageElement(file);
                     myPictureList.add(imgFromStorage);
@@ -239,15 +285,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
+    /**
+     * Method that create unique name for every image
+     * with using SimpleDateFormat
+     *
+     * @return Image name to use in internal storage (the path)
+     */
     private String getPictureName(){
-        // provide unique name for us
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
         String timeStamp = sdf.format(new Date());
         return "MyImages"+timeStamp+".jpg";
     }
-    ///----///////
 
+
+    /**
+     * Pick to image from gallery application folder
+     *
+     */
     private void initEasyImage() {
         EasyImage.configuration(this)
                 .setImagesFolderName("EasyImage sample")
@@ -255,6 +310,12 @@ public class MainActivity extends AppCompatActivity {
                 .setCopyPickedImagesToPublicGalleryAppFolder(false)
                 .setAllowMultiplePickInGallery(true);
     }
+
+
+    /**
+     * Method that checks permissions for storage and gallery
+     * @param context
+     */
     private void checkPermissions(final Context context) {
         int currentAPIVersion = Build.VERSION.SDK_INT;
         if (currentAPIVersion >= android.os.Build.VERSION_CODES.M) {
@@ -329,21 +390,24 @@ public class MainActivity extends AppCompatActivity {
      */
     private void onPhotosReturned(List<File> returnedPhotos) {
         getImageElements(returnedPhotos);
-        // we tell the adapter that the data is changed and hence the grid needs
-        // refreshing
-
+        // the data is changed and hence the grid needs refreshing
         new Thread(new loadImagesFromStorage()).start();
 
        mAdapter.notifyDataSetChanged();
     }
 
+
     /**
-     * given a list of photos, it creates a list of myElements
-     * @param returnedPhotos
-     * @return
+     * Method that gets a list of files from camera or gallery functions
+     * and create an element object after that calling saveToInternalStorage method
+     * to create a place for this image and calling InsertIntoDatabaseTask to insert
+     * into database.
+     *
+     * @param returnedPhotos is a list of files
      */
     private void getImageElements(List<File> returnedPhotos) {
 
+        // declare a list for saving exif information
         List<String> exefInfo=new ArrayList<>();
         float []latLong = new float[2];
 
@@ -358,23 +422,28 @@ public class MainActivity extends AppCompatActivity {
         String pictureName;
         for (File file: returnedPhotos){
             ImageElement element= new ImageElement(file);
-            // take the image
+            // take the image full path and convert bitmap
             bitmap = BitmapFactory.decodeFile(element.file.getAbsolutePath());
             try{
 
+                // to take latitude and longitude values from ExifInterface
                 ExifInterface exif = new ExifInterface(element.file.getAbsolutePath());
                 latLong=new float[2];
                 exefInfo=ShowExifInfo(exif);
                 exif.getLatLong(latLong);
+
             }catch(IOException e){
                 e.printStackTrace();
                 Toast.makeText(this, "Error!", Toast.LENGTH_LONG).show();
 
             }
+
+            // if the image is taken from camera
            if(flag){
                Log.e("long:", "getImageElements: "+longitude );
                Log.e("latit:", "getImageElements: "+latitude );
 
+               // fill the element object with values
                element.setLatitude(latitude);
                element.setLongitude(longitude);
                element.setDate("DateTime : "+reportDate);
@@ -383,43 +452,53 @@ public class MainActivity extends AppCompatActivity {
                Log.e("in 3", "getImageElements: "+ exefInfo.get(0));
                Log.e("in 3", "getImageElements: "+(exefInfo.get(1)) );
                Log.e("in 3", "getImageElements: "+(exefInfo.get(2)) );
-               //Log.e("in 3", "getImageElements: "+(exefInfo.get(1)) );
-             //  counter++;
+
                pictureName=getPictureName();
             }
+           // if the image is taken from gallery
             else{
 
 
-                Log.e("in 2", "getImageElements: " );
-                element.setDate(exefInfo.get(0));
-                element.setLatitude(latLong[0]);
-                element.setLongitude(latLong[1]);
-                element.setImageLength((exefInfo.get(1)));
-                element.setImageWidth((exefInfo.get(2)));
+               Log.e("in 2", "getImageElements: " );
+               element.setDate(exefInfo.get(0));
+               element.setLatitude(latLong[0]);
+               element.setLongitude(latLong[1]);
+               element.setImageLength((exefInfo.get(1)));
+               element.setImageWidth((exefInfo.get(2)));
 
-                Log.e("in 2", "getImageElements: " +exefInfo.get(0));
-                Log.e("in 2", "getImageElements: " +(exefInfo.get(1)));
-                Log.e("in 2", "getImageElements: " +(exefInfo.get(2)));
-                Log.e("in 2", "getImageElements: " +(latLong[0]));
-                Log.e("in 2", "getImageElements: " +(latLong[1]));
+               Log.e("in 2", "getImageElements: " +exefInfo.get(0));
+               Log.e("in 2", "getImageElements: " +(exefInfo.get(1)));
+               Log.e("in 2", "getImageElements: " +(exefInfo.get(2)));
+               Log.e("in 2", "getImageElements: " +(latLong[0]));
+               Log.e("in 2", "getImageElements: " +(latLong[1]));
 
-                counter++;
+               counter++;
+               // add the counter in image name
+               // because we are taking more than one images at the same time.
                pictureName=counter+getPictureName();
 
 
             }
 
-            element.setImagePath(saveToInternalStorage(bitmap,pictureName));
-            new InsertIntoDatabaseTask().execute(element);
+           // to save image in internal storage
+           element.setImagePath(saveToInternalStorage(bitmap,pictureName));
+
+           // to insert the image details into database
+           new InsertIntoDatabaseTask().execute(element);
 
             Log.i("MainActivity", "imgpath: " + element.getImagePath());
 
         }
         flag=false;
-
     }
 
-
+    /**
+     * Method that gets exif file information and
+     * save in an array list
+     *
+     * @param exif to get information from exif file
+     * @return the exif information list
+     */
     private List<String> ShowExifInfo(ExifInterface exif)
     {
         List<String>exefInfo=new ArrayList<>();
@@ -431,13 +510,28 @@ public class MainActivity extends AppCompatActivity {
         return exefInfo;
     }
 
+
+    /**
+     *
+     * Method that creates the tag string for exif file
+     *
+     * @param tag
+     * @param exif
+     *
+     * @return a tag string
+     */
     private String getTagString(String tag, ExifInterface exif)
     {
         return(tag + " : " + exif.getAttribute(tag) + "\n");
     }
 
-    ///////// Taking Images from Database -----------------
 
+    /**
+     *
+     * Method that is a getter method for activity
+     *
+     * @return activiy
+     */
     public Activity getActivity() {
         return activity;
     }
@@ -448,6 +542,7 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -464,19 +559,38 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Method that is a getter method to get database in activity
+     * @return database
+     */
     public static AppDatabase getDB(){return db;}
+
+    /**
+     * Method that is a getter method to get picture list
+     * @return picture list
+     */
     public static List<ImageElement> getImageList(){return myPictureList;}
 
+    /**
+     *
+     * The class, which extends Async task, inserts the image
+     * into database on background
+     *
+     */
     private class InsertIntoDatabaseTask extends AsyncTask<ImageElement, Void, Void> {
 
         @Override
         protected Void doInBackground(ImageElement... img) {
 
              ImageElement e=img[0];
+             // create a location class object
              Location location = new Location(e.getLatitude(), e.getLongitude(), 20.0);
+             // insert the image location into database
              db.imageDao().insertLocation(location);
+             // get the values from ImageElement object and create a image class object
              Image image=new Image(getApplicationContext(),e.getTitle(),
                      e.getDescription(),e.getDate(),e.getImagePath(),e.getImageLength(),e.getImageWidth(),"false",location.getId());
+             // insert the image information into database with using location id (from location database)
              db.imageDao().insertImage(image);
 
             List<Image> imageList = db.imageDao().loadImages();
@@ -490,11 +604,21 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+
+
+    /**
+     *
+     * In onResume, broadCastReceiver is controlled and
+     * is getting latitude and longitude values with broadCastReceiver
+     * when the location is updated.
+     *
+     */
     @Override
     protected void onResume(){
         super.onResume();
-        Log.e("f", "onResume: entered afte close" );
+        Log.e("f", "onResume: entered after close" );
         if(broadcastReceiver == null){
+            // create a BroadcastReceiver object
             broadcastReceiver = new BroadcastReceiver(){
 
                 @Override
@@ -507,24 +631,40 @@ public class MainActivity extends AppCompatActivity {
                 }
             };
         }
+        // update it
         registerReceiver(broadcastReceiver, new IntentFilter("location_update"));
 
     }
+
+
     protected void onDestroy(){
         super.onDestroy();
         if(broadcastReceiver !=null){
             unregisterReceiver(broadcastReceiver);
         }
     }
+
+    /**
+     *
+     * Method that creates a place for the image(with using image name)
+     * in the internal storage and saves them in it.
+     *
+     * @param bitmapImage to compress bitmap
+     * @param pictureName to add the name
+     * @return resulting the full path of the image
+     */
     private String saveToInternalStorage(Bitmap bitmapImage, String pictureName){
 
+        // take the unique name
         picName=pictureName;
+
         // Create imageDir
         File mypath=new File(directory,picName);
 
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(mypath);
+
             // Use the compress method on the BitMap object to write image to the OutputStream
             bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, fos);
             fos.flush();
@@ -544,11 +684,15 @@ public class MainActivity extends AppCompatActivity {
         int duration = Toast.LENGTH_SHORT;
 
 
-        // we need to convert uri when we want back it 
+        // return the full path of the image
         return mypath.getAbsolutePath();
 
     }
 
+    /////////////
+    /**
+     * The class, which extends Async task,
+     */
     private class UpdateImageUploadingMode extends AsyncTask<List<Image>, Void, Void> {
 
         @Override
@@ -566,6 +710,15 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+
+    ////////////
+    /**
+     *
+     * The class, which extends Async task, sends the information of the images(title, description, date etc.)
+     * to the server with using the url in background and giving information to users
+     * on execute.
+     *
+     */
     private  class SendToServer extends AsyncTask<Void, Void, Boolean>{
 
         @Override
@@ -620,6 +773,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * In isConnected method, network connection is controlled
+     * and got the information from NetworkInfo
+     *
+     * @return the resulting the status of network service
+     */
     public boolean isConnected(){
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();

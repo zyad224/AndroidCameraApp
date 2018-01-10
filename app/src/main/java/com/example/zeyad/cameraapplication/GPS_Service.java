@@ -14,10 +14,19 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 /**
- * Created by sakin on 18.12.2017.
+ *
+ * Activity for sending location information to other activities
+ *
+ *
+ * In this activity, we are starting with declare LocationListener object,
+ * then the location is getting or updating to send it to other activities with
+ * using broadcast
+ *
  */
 
 public class GPS_Service extends Service {
+
+    // declarations
     private LocationListener listener;
     private LocationManager locationManager;
     boolean locationChanged;
@@ -28,6 +37,12 @@ public class GPS_Service extends Service {
         return null;
     }
 
+    /**
+     *
+     * In onCreate, declaring a LocationListener object and
+     * getting location values and sending with broadcast
+     *
+     */
     @SuppressLint("MissingPermission")
     public void onCreate() {
 
@@ -73,6 +88,8 @@ public class GPS_Service extends Service {
         // update location
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, listener);
     }
+
+
     public void onDestroy(){
         super.onDestroy();
         if(locationManager != null){

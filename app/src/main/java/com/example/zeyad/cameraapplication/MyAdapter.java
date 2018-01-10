@@ -1,10 +1,5 @@
 package com.example.zeyad.cameraapplication;
 
-/**
- * Created by Zeyad on 12/19/2017.
- */
-
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -19,6 +14,13 @@ import android.widget.ImageView;
 
 import java.util.List;
 
+/**
+ *
+ * Te class that gets ImageElement objects in a list
+ * and converts to bitmap and also gives position to other activities
+ *
+ *
+ */
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.View_Holder> {
     static private Context context;
     private static List<ImageElement> items;
@@ -36,6 +38,12 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.View_Holder> {
     }
 
 
+    /**
+     * Method that gives to holder
+     * @param parent
+     * @param viewType
+     * @return holder
+     */
     @Override
     public View_Holder onCreateViewHolder(ViewGroup parent, int viewType) {
         //Inflate the layout, initialize the View Holder
@@ -46,6 +54,13 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.View_Holder> {
         return holder;
     }
 
+    /**
+     * Method that sending the position to other activity
+     *with using holder and position information
+     *
+     * @param holder
+     * @param position
+     */
     @Override
     public void onBindViewHolder(final View_Holder holder, final int position) {
 
@@ -68,7 +83,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.View_Holder> {
                 }
             });
         }
-        //animate(holder);
     }
 
 
@@ -77,11 +91,19 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.View_Holder> {
         return items.get(id);
     }
 
+    /**
+     *
+     * @return items size
+     */
     @Override
     public int getItemCount() {
         return items.size();
     }
 
+    /**
+     *
+     * Get the imageView from layout
+     */
     public class View_Holder extends RecyclerView.ViewHolder  {
         ImageView imageView;
         View_Holder(View itemView) {
@@ -92,6 +114,15 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.View_Holder> {
 
     }
 
+    /**
+     *
+     * Method that decodes the bitmap from resource
+     *
+     * @param filePath is image path
+     * @param reqWidth is image width
+     * @param reqHeight is image height
+     * @return the image size
+     */
     public static Bitmap decodeSampledBitmapFromResource(String filePath, int reqWidth, int reqHeight) {
 
         // First decode with inJustDecodeBounds=true to check dimensions
@@ -130,10 +161,18 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.View_Holder> {
         return inSampleSize;
     }
 
+    /**
+     * Method is a getter method
+     * @return items
+     */
     public static List<ImageElement> getItems() {
         return items;
     }
 
+    /**
+     * Method is a setter method
+     *  @param items
+     */
     public static void setItems(List<ImageElement> items) {
         MyAdapter.items = items;
     }
@@ -154,6 +193,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.View_Holder> {
     }
 
 
+    /**
+     * Method that keeps holder and position
+     */
     private class HolderAndPosition{
         private View_Holder holder;
         private int position;

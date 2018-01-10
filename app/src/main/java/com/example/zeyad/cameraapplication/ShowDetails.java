@@ -42,12 +42,25 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
+/**
+ *
+ * The class that diplayes the details of an image
+ *
+ * In this class, firstly, image position is taken from other activity(ShowImageActivity)
+ * and we get the image path. After that with using image path we are getting details from database
+ * and filling the spaces and also adding it on small map.
+ *
+ * This class also includes some features like editting, deleting the image and sending it to the server.
+ *
+ */
 public class ShowDetails extends AppCompatActivity {
 
     private EditText title;
@@ -142,6 +155,7 @@ public class ShowDetails extends AppCompatActivity {
                     new getImageFromDb_imgPath().execute(element.file.getAbsolutePath());
 
 
+                Log.e("path", "onCreate: "+element.file.getAbsolutePath() );
             }
 
         }
@@ -155,6 +169,12 @@ public class ShowDetails extends AppCompatActivity {
         delete = (ImageButton) findViewById(R.id.delete);
 
         edit.setOnClickListener(new View.OnClickListener(){
+            /**
+             * The method that edit the image details. User can edit title or
+             * description alone but cannot save if both of them empty.
+             *
+             * @param view
+             */
             public void onClick(View view){
 
                 title.setFocusableInTouchMode(true);
@@ -164,9 +184,11 @@ public class ShowDetails extends AppCompatActivity {
                 saveDetails.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        /// ikisinden biri boşsa save yapma
+
                         String titleT=title.getText().toString();
                         String descriptionT =description.getText().toString();
+
+                        /// If both of them(title and description are empty, do not save it)
                         if(titleT.isEmpty() && descriptionT.isEmpty()){
                             Context context = getApplicationContext();
                             CharSequence text = "Title and description cannot be empty!";
@@ -183,8 +205,6 @@ public class ShowDetails extends AppCompatActivity {
                         element.setDate(date.getText().toString());
                         new UpdateImageDetails().execute(element);
 
-
-
                         finish();
                         }
 
@@ -193,7 +213,17 @@ public class ShowDetails extends AppCompatActivity {
 
             }
         });
+
+        // when user want to delete the image, there is a message box is coming and
+        // asking again.
         delete.setOnClickListener(new View.OnClickListener(){
+            /**
+             * The method that deletes the image with its path.
+             * when we delete the image, we are also delete it from
+             * internal storage and database
+             *
+             * @param view
+             */
             public void onClick(View view) {
 
                 dlgAlert.setMessage("Do you want to delete the image");
@@ -235,7 +265,9 @@ public class ShowDetails extends AppCompatActivity {
             }
         });
 
+        // uploading to the server
 
+        ////////////////////
         uploadServer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -285,6 +317,8 @@ public class ShowDetails extends AppCompatActivity {
     }
 
 
+    /////////////////////////////
+
     private class UpdateImageUploadingMode extends AsyncTask<ImageElement, Void, Void> {
 
         @Override
@@ -302,7 +336,8 @@ public class ShowDetails extends AppCompatActivity {
 
         }
     }
-    /////////// for giving back the position
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -317,12 +352,26 @@ public class ShowDetails extends AppCompatActivity {
     }
 
     OnMapReadyCallback onMapReadyCallback = new OnMapReadyCallback() {
+        /**
+         *
+         * Create a map
+         *
+         * @param googleMap
+         */
         @Override
         public void onMapReady(GoogleMap googleMap) {
             mMap = googleMap;
         }
     };
 
+    /**
+     *
+     * The class that gets the image details from database in background
+     * with using image path and the spaces are filled on execute time.
+     *
+     * The image location is added on google map on execute time.
+     *
+     */
     private class getImageFromDb_imgPath extends AsyncTask<String, Void, Wrapper>{
         @Override
         protected Wrapper doInBackground(String... s) {
@@ -336,9 +385,20 @@ public class ShowDetails extends AppCompatActivity {
         @Override
         protected void onPostExecute(Wrapper w) {
 
+            List<String> tokens = new ArrayList<>();
+            StringTokenizer tokenizer = new StringTokenizer(w.getImage().getImagepath().toString(),"/");
+            while (tokenizer.hasMoreElements()){
+                tokens.add(tokenizer.nextToken());
+            }
+
             length.setText(String.valueOf(w.getImage().getImageLength()));
             width.setText(String.valueOf(w.getImage().getImageWidth()));
-            title.setText(w.getImage().getTitle());
+            if(w.getImage().getTitle()==null) {
+                title.setText(tokens.get(tokens.size() - 1));
+            }
+            else{
+                title.setText(w.getImage().getTitle());
+            }
             description.setText(w.getImage().getDescription());
             date.setText(w.getImage().getDate());
             LatLng position = new LatLng(w.getLocation().getLatitude(),w.getLocation().getLongitude());
@@ -350,6 +410,12 @@ public class ShowDetails extends AppCompatActivity {
         }
     }
 
+
+    /**
+     *
+     * The class that updates image details in database in background when the iamge is editted
+     *
+     */
     private class UpdateImageDetails extends AsyncTask<ImageElement, Void, Void>{
         @Override
         protected Void doInBackground(ImageElement... img) {
@@ -361,6 +427,10 @@ public class ShowDetails extends AppCompatActivity {
         }
     }
 
+    /**
+     * The class that deletes the image in database in background when user delete the image
+     *
+     */
     private class DeleteFromDatabaseTask extends AsyncTask<ImageElement, Void, Void> {
 
         @Override
@@ -387,6 +457,7 @@ public class ShowDetails extends AppCompatActivity {
 
     }
 
+    /////////////////////////////
     private  class SendToServer extends AsyncTask<ImageElement, Void, String>{
 
         @Override
@@ -429,6 +500,14 @@ public class ShowDetails extends AppCompatActivity {
 
 
     }
+
+
+    /**
+     *
+     * Method that controls internet connection and network informations
+     *
+     * @return the status of internet
+     */
     public boolean isConnected(){
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();

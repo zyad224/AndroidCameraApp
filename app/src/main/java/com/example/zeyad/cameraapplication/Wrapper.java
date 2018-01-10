@@ -4,17 +4,20 @@ import com.example.zeyad.cameraapplication.database.Image;
 import com.example.zeyad.cameraapplication.database.Location;
 import com.google.android.gms.maps.model.LatLng;
 
-/**
- * Created by Zeyad on 12/29/2017.
- */
 
+/**
+ *
+ * The class provides to use image class and location class
+ * together in an object
+ *
+ */
 public class Wrapper {
 
+    // declarations
    private  Image image;
    private Location location;
    private String imageTitle;
    private LatLng locOnMap;
-
 
 
    public Wrapper (Image image, Location location){
@@ -29,6 +32,7 @@ public class Wrapper {
 
     }
 
+    // getters and setters
     Image getImage(){
        return this.image;
     }

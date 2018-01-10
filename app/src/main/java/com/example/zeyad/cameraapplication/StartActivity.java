@@ -5,6 +5,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+/**
+ *
+ * This activity is splashing in the application
+ *
+ * It displays the application logo for welcoming
+ *
+ */
 public class StartActivity extends AppCompatActivity {
 
     @Override

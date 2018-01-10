@@ -3,10 +3,17 @@ package com.example.zeyad.cameraapplication;
 import java.io.File;
 import java.io.Serializable;
 
-/**
- * Created by Zeyad on 12/19/2017.
- */
 
+/**
+ *
+ * Creating ImageElement class to use saving our images
+ * in an image object list.
+ *
+ * This class includes all of the image details
+ * and also getters and setter for these details.
+ * Thus, we can use these information when we need.
+ *
+ */
 public class ImageElement implements Serializable {
 
     int image=-1;
