@@ -180,9 +180,9 @@ public class MainActivity extends AppCompatActivity {
         // control of database
         if (db==null)
             db = Room.databaseBuilder(getApplicationContext(),
-                AppDatabase.class, "images_database")
-                .addMigrations( AppDatabase.MIGRATION_13_16)
-                .build();
+                    AppDatabase.class, "images_database")
+                    .addMigrations( AppDatabase.MIGRATION_13_16)
+                    .build();
 
 
         // start the thread for load images in main page in application
@@ -191,11 +191,11 @@ public class MainActivity extends AppCompatActivity {
         // check the network connection, if we have
         if(isConnected()){
 
-                Log.e("inside connected", "onCreate: " );
-                progressBar.setVisibility(View.VISIBLE);
-                // execute the server
-                new SendToServer().execute();
-                progressBar.setVisibility(View.GONE);
+            Log.e("inside connected", "onCreate: " );
+            progressBar.setVisibility(View.VISIBLE);
+            // execute the server
+            new SendToServer().execute();
+            progressBar.setVisibility(View.GONE);
 
         }
 
@@ -247,13 +247,17 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
-     *
-     * Thread that provide load images from internal storage
+     * The thread that provides load images from internal storage
      * to main page in application
      *
      */
     private class loadImagesFromStorage implements Runnable{
 
+        /**
+         *
+         * Firstly, the list of images is taken from internal storage directory
+         * then they are added the picture list
+         */
         @Override
         public void run() {
             try {
@@ -272,7 +276,6 @@ public class MainActivity extends AppCompatActivity {
                     ImageElement imgFromStorage = new ImageElement(file);
                     myPictureList.add(imgFromStorage);
                 }
-
 
                 progressBar.setVisibility(View.GONE);
                 mAdapter.notifyDataSetChanged();
@@ -393,7 +396,7 @@ public class MainActivity extends AppCompatActivity {
         // the data is changed and hence the grid needs refreshing
         new Thread(new loadImagesFromStorage()).start();
 
-       mAdapter.notifyDataSetChanged();
+        mAdapter.notifyDataSetChanged();
     }
 
 
@@ -439,52 +442,52 @@ public class MainActivity extends AppCompatActivity {
             }
 
             // if the image is taken from camera
-           if(flag){
-               Log.e("long:", "getImageElements: "+longitude );
-               Log.e("latit:", "getImageElements: "+latitude );
+            if(flag){
+                Log.e("long:", "getImageElements: "+longitude );
+                Log.e("latit:", "getImageElements: "+latitude );
 
-               // fill the element object with values
-               element.setLatitude(latitude);
-               element.setLongitude(longitude);
-               element.setDate("DateTime : "+reportDate);
-               element.setImageLength((exefInfo.get(1)));
-               element.setImageWidth((exefInfo.get(2)));
-               Log.e("in 3", "getImageElements: "+ exefInfo.get(0));
-               Log.e("in 3", "getImageElements: "+(exefInfo.get(1)) );
-               Log.e("in 3", "getImageElements: "+(exefInfo.get(2)) );
+                // fill the element object with values
+                element.setLatitude(latitude);
+                element.setLongitude(longitude);
+                element.setDate("DateTime : "+reportDate);
+                element.setImageLength((exefInfo.get(1)));
+                element.setImageWidth((exefInfo.get(2)));
+                Log.e("in 3", "getImageElements: "+ exefInfo.get(0));
+                Log.e("in 3", "getImageElements: "+(exefInfo.get(1)) );
+                Log.e("in 3", "getImageElements: "+(exefInfo.get(2)) );
 
-               pictureName=getPictureName();
+                pictureName=getPictureName();
             }
-           // if the image is taken from gallery
+            // if the image is taken from gallery
             else{
 
 
-               Log.e("in 2", "getImageElements: " );
-               element.setDate(exefInfo.get(0));
-               element.setLatitude(latLong[0]);
-               element.setLongitude(latLong[1]);
-               element.setImageLength((exefInfo.get(1)));
-               element.setImageWidth((exefInfo.get(2)));
+                Log.e("in 2", "getImageElements: " );
+                element.setDate(exefInfo.get(0));
+                element.setLatitude(latLong[0]);
+                element.setLongitude(latLong[1]);
+                element.setImageLength((exefInfo.get(1)));
+                element.setImageWidth((exefInfo.get(2)));
 
-               Log.e("in 2", "getImageElements: " +exefInfo.get(0));
-               Log.e("in 2", "getImageElements: " +(exefInfo.get(1)));
-               Log.e("in 2", "getImageElements: " +(exefInfo.get(2)));
-               Log.e("in 2", "getImageElements: " +(latLong[0]));
-               Log.e("in 2", "getImageElements: " +(latLong[1]));
+                Log.e("in 2", "getImageElements: " +exefInfo.get(0));
+                Log.e("in 2", "getImageElements: " +(exefInfo.get(1)));
+                Log.e("in 2", "getImageElements: " +(exefInfo.get(2)));
+                Log.e("in 2", "getImageElements: " +(latLong[0]));
+                Log.e("in 2", "getImageElements: " +(latLong[1]));
 
-               counter++;
-               // add the counter in image name
-               // because we are taking more than one images at the same time.
-               pictureName=counter+getPictureName();
+                counter++;
+                // add the counter in image name
+                // because we are taking more than one images at the same time.
+                pictureName=counter+getPictureName();
 
 
             }
 
-           // to save image in internal storage
-           element.setImagePath(saveToInternalStorage(bitmap,pictureName));
+            // to save image in internal storage
+            element.setImagePath(saveToInternalStorage(bitmap,pictureName));
 
-           // to insert the image details into database
-           new InsertIntoDatabaseTask().execute(element);
+            // to insert the image details into database
+            new InsertIntoDatabaseTask().execute(element);
 
             Log.i("MainActivity", "imgpath: " + element.getImagePath());
 
@@ -528,7 +531,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      *
-     * Method that is a getter method for activity
+     * Method that is a getter method for getActivity function
      *
      * @return activiy
      */
@@ -574,30 +577,46 @@ public class MainActivity extends AppCompatActivity {
     /**
      *
      * The class, which extends Async task, inserts the image
-     * into database on background
+     * into database on background and gives message to the user on execute time
      *
      */
     private class InsertIntoDatabaseTask extends AsyncTask<ImageElement, Void, Void> {
 
+        /**
+         * This method recieves the image element object and inserts
+         * it into database in background.
+         *
+         * Firstly, the location is inserted into database after that
+         * the image is inserted into database with using the location.
+         *
+         * @param img
+         * @return
+         */
         @Override
+
         protected Void doInBackground(ImageElement... img) {
 
-             ImageElement e=img[0];
-             // create a location class object
-             Location location = new Location(e.getLatitude(), e.getLongitude(), 20.0);
-             // insert the image location into database
-             db.imageDao().insertLocation(location);
-             // get the values from ImageElement object and create a image class object
-             Image image=new Image(getApplicationContext(),e.getTitle(),
-                     e.getDescription(),e.getDate(),e.getImagePath(),e.getImageLength(),e.getImageWidth(),"false",location.getId());
-             // insert the image information into database with using location id (from location database)
-             db.imageDao().insertImage(image);
+            ImageElement e=img[0];
+            // create a location class object
+            Location location = new Location(e.getLatitude(), e.getLongitude(), 20.0);
+            // insert the image location into database
+            db.imageDao().insertLocation(location);
+            // get the values from ImageElement object and create a image class object
+            Image image=new Image(getApplicationContext(),e.getTitle(),
+                    e.getDescription(),e.getDate(),e.getImagePath(),e.getImageLength(),e.getImageWidth(),"false",location.getId());
+            // insert the image information into database with using location id (from location database)
+            db.imageDao().insertImage(image);
 
             List<Image> imageList = db.imageDao().loadImages();
 
             return null;
         }
 
+        /**
+         * The method gives message to the user on execute time.
+         *
+         * @param aVoid
+         */
         @Override
         protected void onPostExecute(Void aVoid) {
             Toast.makeText(getBaseContext(), "Image Saved in DataBase", Toast.LENGTH_LONG).show();
@@ -712,7 +731,7 @@ public class MainActivity extends AppCompatActivity {
 
             List<Image> e= img[0];
             for(Image ee:e)
-                 db.imageDao().updateImageOffline(ee.getImagepath(),"false");
+                db.imageDao().updateImageOffline(ee.getImagepath(),"false");
             return null;
         }
 
@@ -803,15 +822,15 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Boolean flg) {
 
             if(flg)
-              Toast.makeText(getBaseContext(), "Images Have Been Sent to the Server!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getBaseContext(), "Images Have Been Sent to the Server!", Toast.LENGTH_LONG).show();
         }
 
 
     }
 
     /**
-     * In isConnected method, network connection is controlled
-     * and got the information from NetworkInfo
+     * This method checks network connection.
+     *
      *
      * @return the resulting the status of network service
      */

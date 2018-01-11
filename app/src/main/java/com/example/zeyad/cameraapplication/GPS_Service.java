@@ -33,7 +33,7 @@ public class GPS_Service extends Service {
 
     @Nullable
     @Override
-    public IBinder onBind(Intent ıntent) {
+    public IBinder onBind(Intent intent) {
         return null;
     }
 

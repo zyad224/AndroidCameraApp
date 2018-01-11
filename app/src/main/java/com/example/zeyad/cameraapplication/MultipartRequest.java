@@ -1,15 +1,6 @@
 package com.example.zeyad.cameraapplication;
 
-/**
- * Created by Zeyad on 1/2/2018.
- *
- * This class is used to upload multiple forms of images
- * to the server. It uses okHttpClient to communicate with the
- * server by sending Post requests and receiving Get responses from
- * the server.
- *
- *
- */
+
 import android.content.Context;
 import android.util.Log;
 
@@ -25,6 +16,15 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+
+/**
+ * This class is used to upload multiple forms of images
+ * to the server. It uses okHttpClient to communicate with the
+ * server by sending Post requests and receiving Get responses from
+ * the server.
+ *
+ *
+ */
 public class MultipartRequest
 {
     public Context context;

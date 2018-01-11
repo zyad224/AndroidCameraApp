@@ -198,14 +198,14 @@ public class ShowDetails extends AppCompatActivity {
                             toast.show();
                         }
                         else{
-                        title.setFocusable(false);
-                        description.setFocusable(false);
-                        element.setTitle(title.getText().toString());
-                        element.setDescription(description.getText().toString());
-                        element.setDate(date.getText().toString());
-                        new UpdateImageDetails().execute(element);
+                            title.setFocusable(false);
+                            description.setFocusable(false);
+                            element.setTitle(title.getText().toString());
+                            element.setDescription(description.getText().toString());
+                            element.setDate(date.getText().toString());
+                            new UpdateImageDetails().execute(element);
 
-                        finish();
+                            finish();
                         }
 
                     }
@@ -267,8 +267,14 @@ public class ShowDetails extends AppCompatActivity {
 
         // uploading to the server
 
-        ////////////////////
         uploadServer.setOnClickListener(new View.OnClickListener() {
+            /**
+             * The method that checkes the internet connection.
+             * If there is an internet connection, sends the image to the server.
+             * If there is no internet connection, changes the mode to send later.
+             *
+             * @param view
+             */
             @Override
             public void onClick(View view) {
 
@@ -386,13 +392,22 @@ public class ShowDetails extends AppCompatActivity {
 
     /**
      *
-     * The class that gets the image details from database in background
+     * This Async Task that gets the image details from database in background
      * with using image path and the spaces are filled on execute time.
      *
      * The image location is added on google map on execute time.
      *
      */
     private class getImageFromDb_imgPath extends AsyncTask<String, Void, Wrapper>{
+
+        /**
+         * This method recieves the image path and gets the image information
+         * and also location from database. After that creating an object including
+         * all of the information and sending it to the onPostExecuteTime.
+         *
+         * @param s is the path of the image
+         * @return an object that includes image details
+         */
         @Override
         protected Wrapper doInBackground(String... s) {
             String imagePath=s[0];
@@ -402,6 +417,13 @@ public class ShowDetails extends AppCompatActivity {
             return w;
         }
 
+        /**
+         * This method recieves the object of the image details and adds the information
+         * in textboxes and adds marker on map.
+         *
+         *
+         * @param w is the object of the image details
+         */
         @Override
         protected void onPostExecute(Wrapper w) {
 
@@ -433,10 +455,20 @@ public class ShowDetails extends AppCompatActivity {
 
     /**
      *
-     * The class that updates image details in database in background when the iamge is editted
+     * This Async Task that updates image details in database in background
+     * when the iamge is editted
      *
      */
     private class UpdateImageDetails extends AsyncTask<ImageElement, Void, Void>{
+
+        /**
+         * This method recieves the image element and updates
+         * the changes of the image details with the query that
+         * gets the image path, title and description.
+         *
+         * @param img
+         * @return
+         */
         @Override
         protected Void doInBackground(ImageElement... img) {
 
@@ -448,11 +480,20 @@ public class ShowDetails extends AppCompatActivity {
     }
 
     /**
-     * The class that deletes the image in database in background when user delete the image
+     * This Async Task deletes the image in database in background
+     * when user delete the image
      *
      */
     private class DeleteFromDatabaseTask extends AsyncTask<ImageElement, Void, Void> {
 
+        /**
+         * This method recieves the image element and
+         * deletes it from database with the query that
+         * checks the image path
+         *
+         * @param img
+         * @return
+         */
         @Override
         protected Void doInBackground(ImageElement... img) {
 
@@ -463,6 +504,11 @@ public class ShowDetails extends AppCompatActivity {
             return null;
         }
 
+        /**
+         * This method gives a message to the user on execute time
+         * when the background function is finished.
+         * @param aVoid
+         */
         @Override
         protected void onPostExecute(Void aVoid) {
             Toast.makeText(getBaseContext(), "Image deleted in DataBase", Toast.LENGTH_LONG).show();
