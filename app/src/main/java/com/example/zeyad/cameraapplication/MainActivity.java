@@ -689,13 +689,25 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    /////////////
+
     /**
-     * The class, which extends Async task,
+     * This Async Task recieves a list of images sent to the server from the SendToServer Async Task
+     * This task updates the offline parameter in the image table to false indicating
+     * that these images are already sent to the server
+     *
+     *
      */
     private class UpdateImageUploadingMode extends AsyncTask<List<Image>, Void, Void> {
 
         @Override
+        /**
+         * This method recieves a List of images that is alreadey
+         * sent to the server and update the change the offline parameter
+         * for each image in the database to false to indicate that this image
+         * is already sent to the server
+         *
+         * @param List<Image>  Images to update in the database
+         */
         protected Void doInBackground(List<Image>... img) {
 
             List<Image> e= img[0];
@@ -705,23 +717,41 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
+        /**
+         * This method is called after finishing the background
+         * activity. it shows a text to the user to tell him that
+         * the images are updated in the database
+         */
         protected void onPostExecute(Void aVoid) {
             Toast.makeText(getBaseContext(), "Image mode is updated again", Toast.LENGTH_LONG).show();
 
         }
     }
 
-    ////////////
+
     /**
+     * This Async Task send to the server images that are failed
+     * to be sent due to network unavailability.
+     * It uses the MultipartRequest class to create a okHttpClient to
+     * send requests and recieve responses to/from the server
      *
-     * The class, which extends Async task, sends the information of the images(title, description, date etc.)
-     * to the server with using the url in background and giving information to users
-     * on execute.
      *
      */
     private  class SendToServer extends AsyncTask<Void, Void, Boolean>{
 
         @Override
+        /**
+         * This method is responsible to get all the images that
+         * failed to be sent to the server and load them in List<Image> offlineImages.
+         *
+         * After that it creates a JSON Object for each image and saves the title,description,latitude,
+         * longitude,date,image lenght, image width, and image path in that JSOB Object.
+         *
+         * After that it sends the JSON Object + the image path to the server using
+         * the multipartRequest.addFile() method
+         *
+         * @return flg which indicates that images have been sent to the server
+         */
         protected Boolean doInBackground(Void... voids) {
 
 
@@ -764,6 +794,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
+        /**
+         * This method receives  a boolean from the background function
+         * if this boolean is true then this method will show to the user
+         * a text which indicates that images have been sent to the server
+         *
+         */
         protected void onPostExecute(Boolean flg) {
 
             if(flg)

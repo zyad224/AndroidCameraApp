@@ -2,6 +2,13 @@ package com.example.zeyad.cameraapplication;
 
 /**
  * Created by Zeyad on 1/2/2018.
+ *
+ * This class is used to upload multiple forms of images
+ * to the server. It uses okHttpClient to communicate with the
+ * server by sending Post requests and receiving Get responses from
+ * the server.
+ *
+ *
  */
 import android.content.Context;
 import android.util.Log;
@@ -24,6 +31,13 @@ public class MultipartRequest
     public MultipartBody.Builder multipartBody;
     public OkHttpClient okHttpClient;
 
+
+    /**
+     * This is the constructor of the class.
+     * it initilize the body of the request and
+     * create an okHttpClient to communicate to the server
+     * @param context
+     */
     public MultipartRequest(Context context)
     {
         this.context = context;
@@ -38,19 +52,42 @@ public class MultipartRequest
         this.multipartBody.addFormDataPart(name, value);
     }
 
-    // Add Image File
+    /**
+     * This method receives the image path of the image and
+     * the JSON Object of that image and append them to body of
+     * the request in order to send it to the server
+     * @param name       name of image
+     * @param filePath   image path
+     * @param fileName   JSON Object
+     */
     public void addFile(String name, String filePath, String fileName)
     {
         this.multipartBody.addFormDataPart(name, fileName, RequestBody.create(MediaType.parse("image/jpeg"), new File(filePath)));
     }
 
-    // Add Zip File
+    /**
+     * This method is to used to create a compressed zip file
+     * and append it to the body of the request in order to send it to the server
+     * @param name      name of image
+     * @param filePath  image path
+     * @param fileName  JSON Object
+     */
     public void addZipFile(String name, String filePath, String fileName)
     {
         this.multipartBody.addFormDataPart(name, fileName, RequestBody.create(MediaType.parse("application/zip"), new File(filePath)));
     }
 
-    // Execute Url
+    /**
+     * This method build the request body then execute
+     * the request by sending it to the url given to the function.
+     * If the response is not successful, it throws an exception.
+     * If the response is successful, it saves the response from the
+     * server into strResponse.
+     *
+     *
+     * @param url  the server url that the images will be sent to
+     * @return strResponse response recieved from the server
+     */
     public String execute(String url)
     {
         RequestBody requestBody = null;

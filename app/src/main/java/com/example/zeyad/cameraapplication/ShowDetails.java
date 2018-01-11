@@ -317,11 +317,27 @@ public class ShowDetails extends AppCompatActivity {
     }
 
 
-    /////////////////////////////
+
+    /**
+     * This Async Task recieves an image that failed to be sent to the server due to
+     * internet connectivity.
+     *
+     * This task updates the offline parameter in the image table to true indicating
+     * that this image should be sent again to the server after the connection comes back
+     *
+     *
+     *
+     *
+     */
 
     private class UpdateImageUploadingMode extends AsyncTask<ImageElement, Void, Void> {
 
         @Override
+        /**
+         * This method receives an ImageElement and update the offline parameter
+         * of this image to true to indicate that this image should be sent to the
+         * server after the internt connection comes back
+         */
         protected Void doInBackground(ImageElement... img) {
 
 
@@ -331,6 +347,10 @@ public class ShowDetails extends AppCompatActivity {
         }
 
         @Override
+        /**
+         * This method show to a user a text to indicate that the image offline status
+         * is updated in the database
+         */
         protected void onPostExecute(Void aVoid) {
             Toast.makeText(getBaseContext(), "Image mode is update", Toast.LENGTH_LONG).show();
 
@@ -457,10 +477,32 @@ public class ShowDetails extends AppCompatActivity {
 
     }
 
-    /////////////////////////////
+
+    /**
+     * This Async Task send to the server images that the user
+     * want to send to the server
+     *
+     * It uses the MultipartRequest class to create a okHttpClient to
+     * send requests and recieve responses to/from the server
+     *
+     *
+     */
     private  class SendToServer extends AsyncTask<ImageElement, Void, String>{
 
         @Override
+
+        /**
+         * This method receives an ImageElement and create
+         * a JSON object for the ImageElement in order to send
+         * the JSON Object to the server.
+         *
+         * After that it sends the JSON Object + the image path to the server using
+         * the multipartRequest.addFile() method
+         *
+         * @param ImageElement  image to be sent to the server
+         * @return serverResult the result from the server
+         *
+         */
         protected String doInBackground(ImageElement... img) {
 
 
@@ -493,6 +535,11 @@ public class ShowDetails extends AppCompatActivity {
         }
 
         @Override
+        /**
+         * This method recieves the result from background function
+         * and show to the user a text to indicate that the image has been
+         * sent to the server
+         */
         protected void onPostExecute(String serverResult) {
             Log.i("serverResult", "Result is:"+serverResult);
             Toast.makeText(getBaseContext(), "Image Sent to server!", Toast.LENGTH_LONG).show();
