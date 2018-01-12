@@ -47,6 +47,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.StringTokenizer;
+
 import com.example.zeyad.cameraapplication.database.*;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -263,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
             try {
 
                 // give message to user that images are loading
-                progressBar.setVisibility(View.VISIBLE);
+              //  progressBar.setVisibility(View.VISIBLE);
                 myPictureList.clear();
                 mAdapter.notifyDataSetChanged();
                 // take the directory of internal storage
@@ -277,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
                     myPictureList.add(imgFromStorage);
                 }
 
-                progressBar.setVisibility(View.GONE);
+              //  progressBar.setVisibility(View.GONE);
                 mAdapter.notifyDataSetChanged();
 
             }catch(Exception e){
@@ -597,6 +599,13 @@ public class MainActivity extends AppCompatActivity {
         protected Void doInBackground(ImageElement... img) {
 
             ImageElement e=img[0];
+
+            List<String> tokens = new ArrayList<>();
+            StringTokenizer tokenizer = new StringTokenizer(e.getImagePath(),"/");
+            while (tokenizer.hasMoreElements()){
+                tokens.add(tokenizer.nextToken());
+            }
+            e.setTitle(tokens.get(tokens.size() - 1));
             // create a location class object
             Location location = new Location(e.getLatitude(), e.getLongitude(), 20.0);
             // insert the image location into database
@@ -611,6 +620,9 @@ public class MainActivity extends AppCompatActivity {
 
             return null;
         }
+
+
+
 
         /**
          * The method gives message to the user on execute time.

@@ -244,6 +244,7 @@ public class ShowDetails extends AppCompatActivity {
                                 Toast.makeText(getBaseContext(), file.toString(), Toast.LENGTH_LONG).show();
                                 file.delete();
 
+
                                 Intent intent = new Intent(ShowDetails.this, MainActivity.class);
                                 MainActivity m = new MainActivity();
                                 intent.putExtra(EXTRA_MESSAGE, file);
@@ -427,20 +428,13 @@ public class ShowDetails extends AppCompatActivity {
         @Override
         protected void onPostExecute(Wrapper w) {
 
-            List<String> tokens = new ArrayList<>();
-            StringTokenizer tokenizer = new StringTokenizer(w.getImage().getImagepath().toString(),"/");
-            while (tokenizer.hasMoreElements()){
-                tokens.add(tokenizer.nextToken());
-            }
-
             length.setText(String.valueOf(w.getImage().getImageLength()));
             width.setText(String.valueOf(w.getImage().getImageWidth()));
-            if(w.getImage().getTitle()==null) {
-                title.setText(tokens.get(tokens.size() - 1));
-            }
-            else{
+
+            if(w.getImage().getTitle()!=null) {
                 title.setText(w.getImage().getTitle());
             }
+
             description.setText(w.getImage().getDescription());
             date.setText(w.getImage().getDate());
             LatLng position = new LatLng(w.getLocation().getLatitude(),w.getLocation().getLongitude());
